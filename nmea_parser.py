@@ -7,12 +7,27 @@ import pandas as pd
 from collections import namedtuple
 import re
 import functools
-print = functools.partial(print, flush=True)
+print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
+
+# Local modules/libary files:
+import db_data_import
+import db_creds
+import db_utils
+import db_table_lists
+
 
 def parse_and_validate_args():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("filepath", help="File system path to file containing NMEA data")
+    parser.add_argument("filepath",
+                            help="file system path to file containing NMEA data")
+    parser.add_argument("output_method",
+                            choices=['csv', 'db', 'both'],
+                            help="where to output data: CSV files, database, or both")
+    parser.add_argument("--drop_previous_db_tables",
+                            action="store_true",
+                            help="drop previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
+
     args = parser.parse_args()
 
     if os.path.isfile(args.filepath):
@@ -203,8 +218,23 @@ def dfs_to_csv(sentence_dfs, input_file_path, verbose=False):
 
         if verbose:
             if df_idx is 0:  # If this is the first df
-                print("data written to:")
+                print(f"data from logfile '{input_file_path}' written to:")
             print("  " + filename)
+
+
+def dfs_to_db(sentence_dfs, input_file_path, verbose=False):
+
+    table_name_base = 'nmea'
+    # Pass lowercase 'talker_sentencetype' as table name suffixes
+    table_name_suffixes = [f"{df['talker'][0]}_{df['sentence_type'][0]}".lower() for df in sentence_dfs]
+
+    table_names = db_data_import.send_data_to_db(input_file_path, sentence_dfs, table_name_base, table_name_suffixes)
+
+    if verbose:
+        print(f"data from logfile '{input_file_path}' written to:")
+        for table_name in table_names:
+            print(f"  '{table_name}' table in '{db_creds.DB_NAME}' database")
+
 
 def get_sentence_type(sentence):
 
@@ -264,8 +294,9 @@ def expand_GSV_fields(fields):
 
 def main():
 
-    print("\nReading in data... ", end="")
     args = parse_and_validate_args()
+
+    print("\nReading in data... ", end="")
     file = open_file(args.filepath)
     sentences = read_file(file)
     print("done.")
@@ -279,9 +310,20 @@ def main():
     sentence_dfs  = sentences_to_dataframes(sentence_sets)
     print("done.")
     
-    print("\nWriting data to CSVs... ", end="")
-    dfs_to_csv(sentence_dfs, args.filepath, verbose=True)
-    print("done.")
+    if (args.output_method == 'csv' or args.output_method == 'both'):
+        print("\nWriting data to CSVs... ", end="")
+        dfs_to_csv(sentence_dfs, args.filepath, verbose=True)
+        print("done.")
+
+    if (args.output_method == 'db'  or args.output_method == 'both'):
+        
+        if args.drop_previous_db_tables:
+            print()
+            db_utils.drop_db_tables(db_table_lists.nmea_tables, verbose=True)
+
+        print("\nWriting data to database... ", end="")
+        dfs_to_db(sentence_dfs, args.filepath, verbose=True)
+        print("done.")
 
     print("\nAll done. Exiting.\n\n")
 
