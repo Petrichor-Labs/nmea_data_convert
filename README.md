@@ -1,4 +1,4 @@
-This library makes use of [pynmea2](https://github.com/Knio/pynmea2) to parse through input NMEA data, organize it, and output it to CSV files or to a PostgreSQL database.
+This library makes use of [pynmea2](https://github.com/Knio/pynmea2) to parse through input NMEA 0183 data, organize it, and output it to CSV files or to a PostgreSQL database.
 
 ## Setup
 
