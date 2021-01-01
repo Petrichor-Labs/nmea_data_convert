@@ -81,8 +81,7 @@ def datetime_stamp_sentences(sentences, cycle_start='RMC'):
 
     datetime_stamped_sentences = []
 
-    # Set all datetimes to 
-    date_time = pd.NaT  # NaT -> 'Not a Time', essentiall a NaN/Null value
+    date_time = None
 
     for sentence in sentences:
 
@@ -101,10 +100,8 @@ def datetime_stamp_sentences(sentences, cycle_start='RMC'):
             else:
                 date = None
             
-            if date and time:
+            if date and time:  # Sentence contains both date and time
                 date_time = datetime.combine(date, time)
-            else:  # Sentence does not contain date and time
-                date_time = pd.NaT  # NaT -> 'Not a Time', essentiall a NaN/Null value
 
         datetime_stamped_sentence = DateTimeStampedSentence(sentence, date_time)
         datetime_stamped_sentences.append(datetime_stamped_sentence)
