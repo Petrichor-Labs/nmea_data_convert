@@ -1,5 +1,7 @@
+import sys
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+import sqlalchemy
 import functools
 print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
 
@@ -61,8 +63,12 @@ def setup_db_connection():
 
     db_access_str = f'postgresql://{db_creds.DB_USER}:{db_creds.DB_PASSWORD}@{db_creds.DB_HOST}:{db_creds.DB_PORT}/{db_creds.DB_NAME}'
 
-    # Start a PostgreSQL database session   
-    psqlCon = psycopg2.connect(db_access_str);
+    # Start a PostgreSQL database session
+    try:
+        psqlCon = psycopg2.connect(db_access_str);
+    except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as e:
+        sys.exit(f"\n\033[1m\033[91mERROR connecting to database:\n  {e}\033[0m\n\nExiting.\n\n")  # Print error text bold and red
+    
     psqlCon.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT);
 
     # Open a database cursor
