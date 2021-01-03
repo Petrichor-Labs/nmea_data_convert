@@ -138,6 +138,8 @@ https://www.sparkfun.com/datasheets/GPS/NMEA%20Reference%20Manual1.pdf
 
 https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
 
+https://www.unavco.org/help/glossary/glossary.html
+
 
 ## Support
 If you find this tool useful, please consider supporting development of this tool and other tools like it. You can do so using the `Sponsor` button at the top of the [GitHub page](https://github.com/Petrichor-Labs/nmea_data_convert).

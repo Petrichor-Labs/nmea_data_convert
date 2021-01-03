@@ -268,6 +268,7 @@ def sentences_to_dataframes(sentence_sets):
 
         # Add columns for data fields missing from class
         # TODO: Fork pynmea2 module to correct
+        # Issure reported here: https://github.com/Knio/pynmea2/issues/118
         if sentence_sets[set_idx][0].sentence.sentence_type == 'RMC':
             columns.append('mode')
 
@@ -390,7 +391,8 @@ class DateTimeStampedSentence:
 
 
 class MergedSentence_GSV:
-
+    #TODO: Have MergedSentence_GSV inherit from DateTimeStampedSentence ?
+    
     def __init__(self, merge_group):
         
         self.cycle_id = merge_group[0].cycle_id
