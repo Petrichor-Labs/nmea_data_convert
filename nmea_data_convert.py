@@ -279,6 +279,7 @@ def sentences_to_dataframes(sentence_sets):
         columns.insert(4, 'sentence_type')
 
         df = pd.DataFrame(columns=columns)
+        list_of_data_rows = []
 
         for dts_sentence in sentence_set:
 
@@ -292,12 +293,16 @@ def sentences_to_dataframes(sentence_sets):
             row_data.insert(4, dts_sentence.sentence.sentence_type)
 
             # Single GSV sentences have data for 4 SVs and merged GSV sentences have data for 12 SVs, so fill single GSV sentences with NaNs for SV 5-12 data
-            # TODO: Is this necessary? Use None instead of ''?
             if dts_sentence.sentence.sentence_type == 'GSV':
-                placeholders = ['']  * (len(columns) - len(row_data))
+                placeholders = [np.NaN] * (len(columns) - len(row_data))
                 row_data = row_data + placeholders
 
-            df.loc[len(df)] = row_data  # Append data as new row in dataframe
+            list_of_data_rows.append(row_data)
+
+        df = df.append(pd.DataFrame(list_of_data_rows, columns=df.columns))
+            # Much faster than
+            #   df.loc[len(df)] = row_data
+            # method
 
         dfs.append(df)
 

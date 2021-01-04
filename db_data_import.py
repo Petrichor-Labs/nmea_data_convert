@@ -27,7 +27,7 @@ def send_data_to_db(log_file_path, dfs, table_name_base, table_name_suffixes=Non
         table_name = table_name_base
         if table_name_suffixes:
             table_name = table_name + '_' + table_name_suffixes[df_idx]
-        
+
         try:
             df.to_sql(table_name, engine, method='multi', if_exists=if_exists_opt_loc, index=False)
         except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as e:
