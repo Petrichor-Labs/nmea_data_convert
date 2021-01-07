@@ -10,7 +10,7 @@ import psycopg2
 import db_creds
 
 
-def send_data_to_db(log_file_path, dfs, table_name_base, table_name_suffixes=None):
+def send_data_to_db(log_file_path, dfs, table_name_base, table_name_suffixes=None, dtypes=None):
 
     log_file_name = os.path.basename(log_file_path)
 
@@ -29,7 +29,7 @@ def send_data_to_db(log_file_path, dfs, table_name_base, table_name_suffixes=Non
             table_name = table_name + '_' + table_name_suffixes[df_idx]
 
         try:
-            df.to_sql(table_name, engine, method='multi', if_exists=if_exists_opt_loc, index=False)
+            df.to_sql(table_name, engine, method='multi', if_exists=if_exists_opt_loc, index=False, dtype=dtypes)
         except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as e:
             sys.exit(f"\n\n\033[1m\033[91mERROR writing to database:\n  {e}\033[0m\n\nExiting.\n\n")  # Print error text bold and red
 

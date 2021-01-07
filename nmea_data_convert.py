@@ -15,6 +15,7 @@ import db_data_import
 import db_creds
 import db_utils
 import db_table_lists
+from column_casting import columns_to_cast, datatype_dict, db_datatypes
 
 
 def parse_and_validate_args():
@@ -27,13 +28,14 @@ def parse_and_validate_args():
                             help="where to output data: CSV files, database, or both")
     parser.add_argument("--drop_previous_db_tables", "--dropt",
                             action="store_true",
-                            help="drop previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
+                            help="drop all previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
     parser.add_argument("--backfill_datetimes", "--bfdt",
                             action="store_true",
                             help="backfill datetimes where missing by extrapolating from messages with datetime information")
 
     args = parser.parse_args()
 
+    # Check if input file exists
     if os.path.isfile(args.filepath):
         return args
     else:
@@ -56,6 +58,9 @@ def read_file(file):
         except pynmea2.ParseError as e:
             print(f'Parse error on line {line_idx+1}: {e}')
             continue
+
+    if len(sentences) == 0:
+        sys.exit(f"\nNo data found in {file.name} input file.\nExiting.\n\n")
 
     return sentences
 
@@ -330,14 +335,13 @@ def correct_data_types(df):
     df.replace(to_replace=pd.NaT, value='', inplace=True)  # Do this replace first because pd.Nat won't be replaced with np.NaN
     df.replace(to_replace='',     value=np.NaN, inplace=True)
 
-    columns_not_to_cast = ['cycle_id', 'sentence_type', 'talker', 'datetime']
-    columns_to_cast = [column_name for column_name in df.columns if column_name not in columns_not_to_cast]
-
-    if df['sentence_type'][0] == 'GSV':
-
-        for column in columns_to_cast:
-            df[column] = df[column].astype('float').astype('Int16')  # Smallest Int type in Postgres is 2 bytes with a max value of +32,767
-                # Cast as float first to get around bug: https://stackoverflow.com/questions/60024262/error-converting-object-string-to-int32-typeerror-object-cannot-be-converted
+    # Cast dataframe data from strings to appropriate datatypes specified in columns_to_cast.py
+    # sentence_type = df['sentence_type'][0]
+    # for py_datatype in datatype_dict.keys():
+    #     if (sentence_type, py_datatype) in columns_to_cast:  # If key exists in dictionary
+    #         for column in columns_to_cast[sentence_type, py_datatype]:
+    #             df[column] = df[column].astype('float').astype(py_datatype)
+    #                 # Cast as float first to get around bug: https://stackoverflow.com/questions/60024262/error-converting-object-string-to-int32-typeerror-object-cannot-be-converted
 
     df['datetime'].replace(to_replace=np.NaN, value=pd.NaT, inplace=True)  # Needed for backfill_datetimes() to work properly
 
@@ -365,7 +369,16 @@ def dfs_to_db(sentence_dfs, input_file_path, verbose=False):
     # Pass lowercase 'talker_sentencetype' as table name suffixes
     table_name_suffixes = [f"{df['talker'][0]}_{df['sentence_type'][0]}".lower() for df in sentence_dfs]
 
-    table_names = db_data_import.send_data_to_db(input_file_path, sentence_dfs, table_name_base, table_name_suffixes)
+    # Determine database datatypes for columns in columns_to_cast
+    for df in sentence_dfs:
+        sentence_type = df['sentence_type'][0]
+        for py_datatype in datatype_dict.keys():
+            if (sentence_type, py_datatype) in columns_to_cast:  # If key exists in dictionary
+                for column in columns_to_cast[sentence_type, py_datatype]:
+                    db_datatypes[column] = datatype_dict[py_datatype]  # Get database datatype for column
+
+
+    table_names = db_data_import.send_data_to_db(input_file_path, sentence_dfs, table_name_base, table_name_suffixes, dtypes=db_datatypes)
 
     if verbose:
         print(f"data from logfile '{input_file_path}' written to:")
@@ -464,7 +477,8 @@ def main():
     print("\nProcessing data... ", end="")
     sentence_dfs = process_data_common(sentences, cycle_start='GNRMC')  # Cycle starts with 'RMC' sentence
     if args.backfill_datetimes:
-        dts_sentences = backfill_datetimes(sentence_dfs, verbose=True)
+        backfill_datetimes(sentence_dfs, verbose=True)
+    # derive_data(sentence_dfs)
     print("done.")
     
     if (args.output_method == 'csv' or args.output_method == 'both'):
@@ -483,6 +497,7 @@ def main():
         print("done.")
 
     print("\nAll done. Exiting.\n\n")
+
 
 if __name__ == '__main__':
 
