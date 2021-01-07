@@ -7,6 +7,7 @@ import pandas as pd
 from collections import namedtuple
 import re
 import numpy as np
+# import LatLon23
 import functools
 print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
 
@@ -260,6 +261,41 @@ def backfill_datetimes(sentence_dfs, verbose=False):
             df['datetime_is_interpolated'][sen_idx] = True
 
 
+# Derive custom data from NMEA data
+def derive_data(sentence_dfs):
+
+    for df in sentence_dfs:
+
+        if df['sentence_type'][0] == 'RMC':
+
+            # Derive decimal degree lat/lon format from NMEA DDMM.MMMMM/DDDMM.MMMMM formats
+            df['latitude']  = df.apply(lambda row : get_coordinate(row['lat'], row['lat_dir'], 'lat'), axis = 1)
+            df['longitude'] = df.apply(lambda row : get_coordinate(row['lon'], row['lon_dir'], 'lon'), axis = 1)
+
+
+def get_coordinate(coord, coord_dir, coord_type):
+
+    # 'lat' is in  DDMM.MMMMM format, number of decimal places is variable
+    # 'lon' is in DDDMM.MMMMM format, number of decimal places is variable
+
+    if coord != coord:  # If is NaN
+        return coord
+
+    if coord_type == 'lat':
+        degree = float(coord[:2])
+        minute = float(coord[2:])
+    if coord_type == 'lon':
+        degree = float(coord[:3])
+        minute = float(coord[3:])
+
+    coord = degree + minute/60
+
+    if coord_dir == 'S' or coord_dir == 'W':
+        coord = -coord
+
+    return coord
+
+
 def sentences_to_dataframes(sentence_sets):
 
     dfs = []
@@ -358,7 +394,7 @@ def dfs_to_csv(sentence_dfs, input_file_path, verbose=False):
         df.to_csv(filename, index=False)  # Save to cwd
 
         if verbose:
-            if df_idx is 0:  # If this is the first df
+            if df_idx == 0:  # If this is the first df
                 print(f"data from logfile '{input_file_path}' written to:")
             print("  " + filename)
 
@@ -478,7 +514,7 @@ def main():
     sentence_dfs = process_data_common(sentences, cycle_start='GNRMC')  # Cycle starts with 'RMC' sentence
     if args.backfill_datetimes:
         backfill_datetimes(sentence_dfs, verbose=True)
-    # derive_data(sentence_dfs)
+    derive_data(sentence_dfs)
     print("done.")
     
     if (args.output_method == 'csv' or args.output_method == 'both'):
