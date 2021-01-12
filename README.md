@@ -130,11 +130,11 @@ All done. Exiting.
 ## References Used in Development
 https://github.com/Knio/pynmea2/blob/master/README.md
 
-https://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_MessageOverview.html
-
 https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29.pdf (section 31 'NMEA Protocol')
 
 https://www.sparkfun.com/datasheets/GPS/NMEA%20Reference%20Manual1.pdf
+
+https://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_MessageOverview.html
 
 https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
 

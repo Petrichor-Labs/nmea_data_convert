@@ -47,7 +47,7 @@ columns_to_cast['RMC', 'Int32']  = ['datestamp']
 columns_to_cast['RMC', 'float32'] = ['timestamp', 'lat', 'lon', 'spd_over_grnd', 'true_course', 'mag_variation']
 
 columns_to_cast['GGA', 'float32'] = ['timestamp', 'lat', 'lon', 'horizontal_dil', 'altitude', 'geo_sep']
-columns_to_cast['GGA', 'Int16']   = ['gps_qial', 'num_sats']
+columns_to_cast['GGA', 'Int16']   = ['gps_qual', 'num_sats']
 # For GGA, unsure about 'age_gps_data' and 'ref_station_id'
 
 columns_to_cast['GLL', 'float32'] = ['lat', 'lon']
