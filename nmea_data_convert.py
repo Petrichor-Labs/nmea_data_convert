@@ -133,49 +133,30 @@ def assign_cycle_ids(dts_sentences, cycle_start='GNRMC'):
     return dts_sentences
 
 
-# Get list of groups (lists) of sentences that should be merged together
-# Sentences to be merged are those that have the same type and that are (assumed to be) 
-#   part of the same cycle (e.g., msg_num 1 or 2 out of num_messages 2) and where the date and time match
-# Assumes sentences that should be merged are listed together but in no particular order
-# Currently only supporting merging GSV sentences
-# This could probably be done easier using the cycle_id attribute, but the current implementation may be more reliable
-def get_merge_groups(sentence_sets):
-
-    merge_group_lists = [[[]] for idx in range(len(sentence_sets))]
+# For sentences from a particular sentence_set (particular talker), if there are sentences of the same sentence_type
+#   from the same cycle, merge them into one sentence
+def merge_groups(sentence_sets):
 
     for set_idx, sentence_set in enumerate(sentence_sets):
-        for sentence_idx, dts_sentence in enumerate(sentence_set):
+        
+        sentence_type = sentence_set[0].sentence.sentence_type
 
-            if hasattr(dts_sentence.sentence, 'num_messages') and (int(dts_sentence.sentence.num_messages) > 1) \
-                and (dts_sentence.sentence.sentence_type == 'GSV'):  # If sentence needs to be merged with another sentence
+        if sentence_type in ['GSV', 'GSA']:  # These are the supported sentence types that can be merged
 
-                # Check whether current sentence should be merged with current group or if new group should be started
-                for sentence_in_group_idx, _ in enumerate(merge_group_lists[set_idx][-1]):
-
-                    if dts_sentence.sentence.num_messages != sentence_sets[set_idx][merge_group_lists[set_idx][-1][sentence_in_group_idx]].sentence.num_messages \
-                        or dts_sentence.sentence.msg_num  == sentence_sets[set_idx][merge_group_lists[set_idx][-1][sentence_in_group_idx]].sentence.msg_num      \
-                        or dts_sentence.date_time         is not sentence_sets[set_idx][merge_group_lists[set_idx][-1][sentence_in_group_idx]].date_time:
-
-                        merge_group_lists[set_idx].append([])  # Start new merge group
-                        break  # Break is necessary here so that we don't append more than one []
-
-                merge_group_lists[set_idx][-1].append(sentence_idx)
-
-    return merge_group_lists
-
-
-def merge_groups(sentence_sets, merge_group_lists):
-
-    for set_idx, set_merge_group_list in enumerate(merge_group_lists):
-        if any(set_merge_group_list):  # If there are merge groups
-
+            cycle_ids = [dts_sentence.cycle_id for dts_sentence in sentence_set]
+            cycle_ids = list(set(cycle_ids))  # Keep unique cycle IDs only by converting to set and back to list
             sentences_merged = []
 
-            for merge_group in set_merge_group_list:
+            for cycle_id in cycle_ids:
+                merge_group_sentences = [dts_sentence for dts_sentence in sentence_set if dts_sentence.cycle_id == cycle_id]
+                if len(merge_group_sentences) > 1:
+                    
+                    if sentence_type == 'GSV':
+                        merged_sentence = MergedSentence_GSV(merge_group_sentences)
 
-                if len(merge_group) > 1:  # There will be some empty sets
-                    merge_group_sentences = [sentence_sets[set_idx][sen_idx] for sen_idx in merge_group]
-                    merged_sentence = MergedSentence_GSV(merge_group_sentences)
+                    if sentence_type == 'GSA':
+                        merged_sentence = MergedSentence_GSA(merge_group_sentences)
+
                     sentence_sets[set_idx].append(merged_sentence)
 
                     sentences_merged = sentences_merged + merge_group_sentences
@@ -301,23 +282,30 @@ def sentences_to_dataframes(sentence_sets):
     dfs = []
 
     for set_idx, sentence_set in enumerate(sentence_sets):
-        if sentence_sets[set_idx][0].sentence.sentence_type == 'GSV':
-            fields = expand_GSV_fields(sentence_sets[set_idx][0].sentence.fields)
-        else:
-            fields = sentence_sets[set_idx][0].sentence.fields
+        sentence_type      = sentence_sets[set_idx][0].sentence.sentence_type
+        sentence_is_merged = sentence_sets[set_idx][0].sentence_is_merged_from_multiple
+
+        fields = sentence_sets[set_idx][0].sentence.fields
+        if (sentence_type == 'GSV') and (not sentence_is_merged):
+            # If first sentence is not a merged sentence, make sure that fields allow for merged sentences
+            fields = expand_GSV_fields(fields)
+        elif (sentence_type == 'GSA') and (not sentence_is_merged):
+            # If first sentence is not a merged sentence, make sure that fields allow for merged sentences
+            fields = expand_GSA_fields(fields)
         columns = [column_tuple[1] for column_tuple in fields]
 
         # Add columns for data fields missing from class
         # TODO: Fork pynmea2 module to correct
         # Issure reported here: https://github.com/Knio/pynmea2/issues/118
-        if sentence_sets[set_idx][0].sentence.sentence_type == 'RMC':
+        if sentence_type == 'RMC':
             columns.append('mode')
 
         columns.insert(0, 'cycle_id')
         columns.insert(1, 'datetime')
         columns.insert(2, 'datetime_is_interpolated')
-        columns.insert(3, 'talker')
-        columns.insert(4, 'sentence_type')
+        columns.insert(3, 'sentence_is_merged_from_multiple')
+        columns.insert(4, 'talker')
+        columns.insert(5, 'sentence_type')
 
         df = pd.DataFrame(columns=columns)
         list_of_data_rows = []
@@ -330,13 +318,17 @@ def sentences_to_dataframes(sentence_sets):
             row_data.insert(0, dts_sentence.cycle_id)
             row_data.insert(1, date_time)
             row_data.insert(2, dts_sentence.datetime_is_interpolated)
-            row_data.insert(3, dts_sentence.sentence.talker)
-            row_data.insert(4, dts_sentence.sentence.sentence_type)
+            row_data.insert(3, dts_sentence.sentence_is_merged_from_multiple)
+            row_data.insert(4, dts_sentence.sentence.talker)
+            row_data.insert(5, dts_sentence.sentence.sentence_type)
 
-            # Single GSV sentences have data for 4 SVs and merged GSV sentences have data for 12 SVs, so fill single GSV sentences with NaNs for SV 5-12 data
-            if dts_sentence.sentence.sentence_type == 'GSV':
+            # For non-merged GSV or GSA sentences with more data than merged sentences, fill with NaNs where there is no data
+            if sentence_type in ['GSV', 'GSA'] and not sentence_is_merged:
                 placeholders = [np.NaN] * (len(columns) - len(row_data))
-                row_data = row_data + placeholders
+                if sentence_type == 'GSV':
+                    row_data = row_data + placeholders
+                elif sentence_type == 'GSA':
+                    row_data = row_data[:-3] + placeholders + row_data[-3:]
 
             list_of_data_rows.append(row_data)
 
@@ -435,9 +427,10 @@ class DateTimeStampedSentence:
         # https://stackoverflow.com/questions/14570802/python-check-if-object-is-instance-of-any-class-from-a-certain-module
 
         self.cycle_id = None
-        self.sentence = sentence  # 'sentence' is instance of class from pynmea2
+        self.sentence = sentence  # 'sentence' is an instance of class from pynmea2, contains various attributes
         self.date_time = date_time
         self.datetime_is_interpolated = False
+        self.sentence_is_merged_from_multiple = False
 
     def __str__(self):
 
@@ -445,13 +438,14 @@ class DateTimeStampedSentence:
 
 
 class MergedSentence_GSV:
-    #TODO: Have MergedSentence_GSV inherit from DateTimeStampedSentence ?
+    #TODO: Have MergedSentence_GSV inherit from DateTimeStampedSentence, or create new base MergedSentence class to inherit from ?
     
     def __init__(self, merge_group):
         
         self.cycle_id = merge_group[0].cycle_id
         self.date_time = merge_group[0].date_time
         self.datetime_is_interpolated = False
+        self.sentence_is_merged_from_multiple = True
 
         Sentence = namedtuple('sentence', 'talker sentence_type fields data')
         
@@ -474,6 +468,52 @@ class MergedSentence_GSV:
         return str(self.cycle_id) + ' ' + str(self.sentence.talker) + ' ' + str(self.sentence.sentence_type) + ' ' + str(self.sentence.data) + ' ' + str(self.date_time)
 
 
+class MergedSentence_GSA:
+    # TODO: Have MergedSentence_GSA inherit from DateTimeStampedSentence, or create new base MergedSentence class to inherit from ?
+
+    # Separate GSA sentences in the same cycle represent reporting for different constellations
+    # SV with IDs 1-32 are GPS, 65-96 are GLONASS.
+    # See https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29.pdf, Appendix A
+
+    # TODO: Support more than two GSA sentences per cycle, if necessary
+    
+    def __init__(self, merge_group):
+        
+        if len(merge_group) != 2:
+            raise Exception("Merging of two and only two GSA sentences per cycle is currently supported.")
+
+        self.cycle_id = merge_group[0].cycle_id
+        self.date_time = merge_group[0].date_time
+        self.datetime_is_interpolated = False
+        self.sentence_is_merged_from_multiple = True
+
+        Sentence = namedtuple('sentence', 'talker sentence_type fields data')
+        
+        talker        = merge_group[0].sentence.talker
+        sentence_type = merge_group[0].sentence.sentence_type
+
+        # Create additional sv_id01...sv_id12 fields for second constellation, and label prefix with 'gp' for GPS and 'gl' for GLONASS
+        # Other data is the same between sentences (as observed in limited data)
+        fields = expand_GSA_fields(merge_group[0].sentence.fields)
+
+        # Constellation reporting may not always be in the same order, e.g. GPS may be reported before GLONASS in some
+        #   cycles and after GLONASS in others, so check values and determine which should go first
+        sentence1_sv_ids = [int(id_) for id_ in merge_group[0].sentence.data[2:14] if id_ != '']
+
+        glonass_ids = range(65,96+1)
+        if len(set(sentence1_sv_ids) & set(glonass_ids)):  # If there are GLONASS SV IDs in the first sentence, switch them
+            merge_group = [merge_group[1], merge_group[0]]
+
+        # Merge data from sentences
+        data = merge_group[0].sentence.data[:-3] + merge_group[1].sentence.data[2:]
+
+        self.sentence = Sentence(talker, sentence_type, fields, data)
+
+    def __str__(self):
+
+        return str(self.cycle_id) + ' ' + str(self.sentence.talker) + ' ' + str(self.sentence.sentence_type) + ' ' + str(self.sentence.data) + ' ' + str(self.date_time)
+
+
 # Add fields for SVs 5-12. 12 SVs seems to be a common number of maximum supported SVs for GNSS devices
 def expand_GSV_fields(fields):
 
@@ -487,6 +527,19 @@ def expand_GSV_fields(fields):
     return fields
 
 
+# Create additional sv_id01...sv_id12 fields for second constellation, and label prefix with 'gp' for GPS and 'gl' for GLONASS
+def expand_GSA_fields(fields):
+
+    fields = list(fields)  # Make mutable
+    fields_to_duplicate = [field for field in fields if field[1].startswith('sv_id')]
+    gp_fields = [('GP ' + field[0], 'gp_' + field[1]) for field in fields_to_duplicate]
+    gl_fields = [('GL ' + field[0], 'gl_' + field[1]) for field in fields_to_duplicate]
+    fields = fields[:2] + gp_fields + gl_fields + fields[-3:]  # Keep first two fields and last three fields, replacing what is in between
+    fields = tuple(fields)  # Return to original immutable tuple state
+
+    return fields
+
+
 # Do data processing that we will always want to do
 def process_data_common(sentences, cycle_start='GNRMC'):
     
@@ -494,8 +547,7 @@ def process_data_common(sentences, cycle_start='GNRMC'):
         # 'dts' -> 'datetime stamped'
     dts_sentences = assign_cycle_ids(dts_sentences, cycle_start='GNRMC')
     sentence_sets = categorize_sentences(dts_sentences)
-    merge_group_lists = get_merge_groups(sentence_sets)
-    sentence_sets = merge_groups(sentence_sets, merge_group_lists)
+    sentence_sets = merge_groups(sentence_sets)
     sentence_dfs  = sentences_to_dataframes(sentence_sets)
 
     return sentence_dfs

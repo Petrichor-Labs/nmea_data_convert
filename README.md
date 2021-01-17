@@ -136,9 +136,10 @@ https://www.sparkfun.com/datasheets/GPS/NMEA%20Reference%20Manual1.pdf
 
 https://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_MessageOverview.html
 
-https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
+Talker Identifiers : https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
 
 https://www.unavco.org/help/glossary/glossary.html
+
 
 
 ## Support

@@ -54,9 +54,12 @@ columns_to_cast['GLL', 'float32'] = ['lat', 'lon']
 
 columns_to_cast['VTG', 'float32'] = ['true_track', 'mag_track', 'spd_over_grnd_kts', 'spd_over_grnd_kmph']
 
-columns_to_cast['GSA', 'Int16']   = ['mode_fix_type', 'sv_id01', 'sv_id02', 'sv_id03', 'sv_id04',
-                                                      'sv_id05', 'sv_id06', 'sv_id07', 'sv_id08',
-                                                      'sv_id09', 'sv_id10', 'sv_id11', 'sv_id12',]
+columns_to_cast['GSA', 'Int16']   = ['mode_fix_type', 'gp_sv_id01', 'gp_sv_id02', 'gp_sv_id03', 'gp_sv_id04',
+                                                      'gp_sv_id05', 'gp_sv_id06', 'gp_sv_id07', 'gp_sv_id08',
+                                                      'gp_sv_id09', 'gp_sv_id10', 'gp_sv_id11', 'gp_sv_id12',
+                                                      'gl_sv_id01', 'gl_sv_id02', 'gl_sv_id03', 'gl_sv_id04',
+                                                      'gl_sv_id05', 'gl_sv_id06', 'gl_sv_id07', 'gl_sv_id08',
+                                                      'gl_sv_id09', 'gl_sv_id10', 'gl_sv_id11', 'gl_sv_id12',]
 columns_to_cast['GSA', 'float32'] = ['pdop', 'hdop', 'vdop']
 
 
