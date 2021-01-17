@@ -365,13 +365,21 @@ def sentences_to_dataframes(sentence_sets):
             row_data.insert(4, dts_sentence.sentence.talker)
             row_data.insert(5, dts_sentence.sentence.sentence_type)
 
-            # For non-merged GSV or GSA sentences with more data than merged sentences, fill with NaNs where there is no data
+            # For non-merged GSV or GSA sentences with less data than merged sentences, fill with NaNs where there is no data
             if sentence_type in ['GSV', 'GSA'] and not sentence_is_merged:
                 placeholders = [np.NaN] * (len(columns) - len(row_data))
                 if sentence_type == 'GSV':
                     row_data = row_data + placeholders
                 elif sentence_type == 'GSA':
-                    row_data = row_data[:-3] + placeholders + row_data[-3:]
+                    # Make sure SV ID data gets put in correct (GP vs GL) columns 
+                    sv_ids_in_sentence = row_data[8:20]
+                    glonass_ids = range(65,96+1)  # See notes in MergedSentence_GSA class
+                    # Row data consists of: 6 elements inserted above, 2 elements, 12 SV IDs, 3 elements
+                    # Columns/fields consist of: 6 elements inserted above, 2 elements, 12 GP SV IDs, 12 GL SV IDs, 3 elements
+                    if len(set(sv_ids_in_sentence) & set(glonass_ids)):  # If there are GLONASS SV IDs in the sentence
+                        row_data = row_data[:-15] + placeholders + row_data[-15:]
+                    else:
+                        row_data = row_data[:-3]  + placeholders + row_data[-3:]
 
             list_of_data_rows.append(row_data)
 
