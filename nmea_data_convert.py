@@ -27,20 +27,38 @@ def parse_and_validate_args():
     parser.add_argument("output_method",
                             choices=['csv', 'db', 'both'],
                             help="where to output data: CSV files, database, or both")
-    parser.add_argument("--drop_previous_db_tables", "--dropt",
-                            action="store_true",
-                            help="drop all previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
+    parser.add_argument("--cycle_start", "--cs",
+                            help="talker+sentence_type, e.g. 'GNRMC'; used to key off of for sentence merging, and more; "
+                                 "must appear once and only once in each cycle, and must be at the beginning of each cycle; "
+                                 "must contain date and time information for sentences to be datetime stamped")
+    parser.add_argument("--num_sentences_per_cycle", "--spc",  # Requirement for this is enforced in assign_cycle_ids()
+                            type=int,
+                            help="If the cycle_start argument is not provided, and sentences are not all of type GSV, "
+                                 "cycles will be inferred from this argument. Every num_sentences_per_cycle will be given "
+                                 "the same cycle_id starting with the first sentence. Sentence merging is based on cycle_id.")
     parser.add_argument("--backfill_datetimes", "--bfdt",
                             action="store_true",
                             help="backfill datetimes where missing by extrapolating from messages with datetime information")
+    parser.add_argument("--drop_previous_db_tables", "--dropt",
+                            action="store_true",
+                            help="drop all previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
+
+
 
     args = parser.parse_args()
 
     # Check if input file exists
-    if os.path.isfile(args.filepath):
-        return args
-    else:
-        sys.exit(f"\nFile {args.filepath} does not exist.\n\nExiting.\n")
+    if not os.path.isfile(args.filepath):
+        sys.exit(f"\nERROR: File '{args.filepath}' does not exist.\n\nExiting.\n")
+
+    # Check if num_sentences_per_cycle value is valid
+    if args.num_sentences_per_cycle is not None:
+        args.num_sentences_per_cycle = int(args.num_sentences_per_cycle)
+        if args.num_sentences_per_cycle < 1:
+            sys.exit(f"\nERROR: num_sentences_per_cycle argument '{args.num_sentences_per_cycle}' is invalid. Must be a positive "
+                        "integer greater than 0.\n\nExiting.\n")
+
+    return args
 
 
 def open_file(filepath):
@@ -120,15 +138,41 @@ def datetime_stamp_sentences(sentences, cycle_start='GNRMC'):
 
 
 # To properly assign cycle IDs, the cycle_start talker+sentence_type must appear once and only once in each cycle
-def assign_cycle_ids(dts_sentences, cycle_start='GNRMC'):
+def assign_cycle_ids(dts_sentences, args):
     # TODO: Check database for highest cycle_id and start there so that IDs will be unique across runs of this script
 
-    cycle_id = -1
+    cycle_start=args.cycle_start
+    if cycle_start:
+        cycle_start = 'GNRMC'
 
-    for sen_idx, dts_sentence in enumerate(dts_sentences):
-        if dts_sentence.sentence.talker + dts_sentence.sentence.sentence_type == cycle_start:
-            cycle_id += 1
-        dts_sentences[sen_idx].cycle_id = cycle_id
+    unique_talker_and_type_pairs = set([dts_sentence.sentence.talker + dts_sentence.sentence.sentence_type for dts_sentence in dts_sentences])
+    
+    if cycle_start in unique_talker_and_type_pairs:  # If sentences contain cycle_start sentences
+        cycle_id = -1
+        for sen_idx, dts_sentence in enumerate(dts_sentences):
+            if dts_sentence.sentence.talker + dts_sentence.sentence.sentence_type == cycle_start:
+                cycle_id += 1
+            dts_sentences[sen_idx].cycle_id = cycle_id
+    
+    elif len(unique_talker_and_type_pairs) == 1 and \
+        (('GPGSV' in unique_talker_and_type_pairs) or ('GLGSV' in unique_talker_and_type_pairs)):  # If sentences are exclusively 'GPGSV' xor 'GLGSV' sentences
+        cycle_id = -1
+        for sen_idx, dts_sentence in enumerate(dts_sentences):
+            if int(dts_sentence.sentence.msg_num) == 1:
+                cycle_id += 1
+            dts_sentences[sen_idx].cycle_id = cycle_id
+
+    else:
+        num_sentences_per_cycle = args.num_sentences_per_cycle
+        if num_sentences_per_cycle is None:
+            sys.exit("\n\nERROR: If an argument for cycle_start is not provided, and sentences are not exclusively "
+                     "GPGSV xor GLGSV sentences, then the num_sentences_per_cycle argument must be provided.\n\nExiting.\n")
+        cycle_id = -1
+        cycle_start_idxs = range(0, len(dts_sentences), num_sentences_per_cycle)
+        for sen_idx, dts_sentence in enumerate(dts_sentences):
+            if sen_idx in cycle_start_idxs:
+                cycle_id += 1
+            dts_sentences[sen_idx].cycle_id = cycle_id
 
     return dts_sentences
 
@@ -286,11 +330,10 @@ def sentences_to_dataframes(sentence_sets):
         sentence_is_merged = sentence_sets[set_idx][0].sentence_is_merged_from_multiple
 
         fields = sentence_sets[set_idx][0].sentence.fields
+        # If first sentence is not a merged sentence, make sure that fields allow for merged sentences
         if (sentence_type == 'GSV') and (not sentence_is_merged):
-            # If first sentence is not a merged sentence, make sure that fields allow for merged sentences
             fields = expand_GSV_fields(fields)
         elif (sentence_type == 'GSA') and (not sentence_is_merged):
-            # If first sentence is not a merged sentence, make sure that fields allow for merged sentences
             fields = expand_GSA_fields(fields)
         columns = [column_tuple[1] for column_tuple in fields]
 
@@ -541,11 +584,11 @@ def expand_GSA_fields(fields):
 
 
 # Do data processing that we will always want to do
-def process_data_common(sentences, cycle_start='GNRMC'):
+def process_data_common(sentences, args):
     
-    dts_sentences = datetime_stamp_sentences(sentences, cycle_start)
+    dts_sentences = datetime_stamp_sentences(sentences, args.cycle_start)
         # 'dts' -> 'datetime stamped'
-    dts_sentences = assign_cycle_ids(dts_sentences, cycle_start='GNRMC')
+    dts_sentences = assign_cycle_ids(dts_sentences, args)
     sentence_sets = categorize_sentences(dts_sentences)
     sentence_sets = merge_groups(sentence_sets)
     sentence_dfs  = sentences_to_dataframes(sentence_sets)
@@ -563,7 +606,7 @@ def main():
     print("done.")
     
     print("\nProcessing data... ", end="")
-    sentence_dfs = process_data_common(sentences, cycle_start='GNRMC')  # Cycle starts with 'RMC' sentence
+    sentence_dfs = process_data_common(sentences, args)  # Cycle starts with 'GNRMC' sentence
     if args.backfill_datetimes:
         backfill_datetimes(sentence_dfs, verbose=True)
     derive_data(sentence_dfs)
