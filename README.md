@@ -1,17 +1,17 @@
 This library makes use of [pynmea2](https://github.com/Knio/pynmea2) to parse through input NMEA 0183 data, organize it, and output it to CSV files or to a PostgreSQL database.
 
 ## Terminology
-**`sentence`**:
+* **`sentence`**:
 A line from your data file from a particular `talker` and of a particular `sentence_type` E.g.:
 `$GNRMC,,V,,,,,,,,,,N*4D`
 `$GNGGA,045824.00,3944.54025,N,10511.64604,W,1,03,4.93,1784.2,M,-21.5,M,,*49`
 
-**`talker`**:
+* **`talker`**:
 The type of the transmitting unit. For the purposes of satellite navigation, this is the constellation from which data is being received.
 E.g.: `GA`: Galileo Positioning System; `GB`: BDS (BeiDou System); `GL`: GLONASS Receiver; `GN`: Global Navigation Satellite System (GNSS); `GP`: Global Positioning System (GPS)
 See: https://gpsd.gitlab.io/gpsd/NMEA.html#_talker_ids, or https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
 
-**`sentence_type`**:
+* **`sentence_type`**:
 One of several types of NMEA sentences that can be received from the talker.
 E.g.: `RMC`, `VTG`, `GGA`, `GSA`, `GSV`, `GLL`
 See: https://gpsd.gitlab.io/gpsd/NMEA.html#_nmea_standard_sentences
@@ -161,19 +161,13 @@ $ python nmea_data_convert.py test_data/test_data_GNGSA.nmea db --spc 2
 
 
 ## Helpful References
-https://github.com/Knio/pynmea2/blob/master/README.md
-
-https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29.pdf (section 31 'NMEA Protocol')
-
-https://www.sparkfun.com/datasheets/GPS/NMEA%20Reference%20Manual1.pdf
-
-https://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_MessageOverview.html
-
-Talker Identifiers : https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
-
-Glossary : https://www.unavco.org/help/glossary/glossary.html
-
-https://gpsd.gitlab.io/gpsd/NMEA.html#_nmea_standard_sentences
+* https://github.com/Knio/pynmea2/blob/master/README.md
+* https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29.pdf (section 31 'NMEA Protocol')
+* https://www.sparkfun.com/datasheets/GPS/NMEA%20Reference%20Manual1.pdf
+* https://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_MessageOverview.html
+* Talker Identifiers : https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
+* Glossary : https://www.unavco.org/help/glossary/glossary.html
+* https://gpsd.gitlab.io/gpsd/NMEA.html#_nmea_standard_sentences
 
 ## Support
 If you find this tool useful, please consider supporting development of this tool and other tools like it. You can do so using the `Sponsor` button at the top of the [GitHub page](https://github.com/Petrichor-Labs/nmea_data_convert).
