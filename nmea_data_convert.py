@@ -240,7 +240,7 @@ def backfill_datetimes(sentence_dfs, verbose=False):
 
     if not interval:
         if verbose:
-            print("Time delta between sentence cycles could not be determined, so datetimes will not be backfilled.")
+            print("\n  Time delta between sentence cycles could not be determined, so datetimes will not be backfilled.")
         return
 
     pd.options.mode.chained_assignment = None  # Suppress chained_assignment warnings, default='warn'

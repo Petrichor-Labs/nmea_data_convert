@@ -1,12 +1,31 @@
 This library makes use of [pynmea2](https://github.com/Knio/pynmea2) to parse through input NMEA 0183 data, organize it, and output it to CSV files or to a PostgreSQL database.
 
+## Terminology
+**`sentence`**:
+A line from your data file from a particular `talker` and of a particular `sentence_type` E.g.:
+`$GNRMC,,V,,,,,,,,,,N*4D`
+`$GNGGA,045824.00,3944.54025,N,10511.64604,W,1,03,4.93,1784.2,M,-21.5,M,,*49`
+
+**`talker`**:
+The type of the transmitting unit. For the purposes of satellite navigation, this is the constellation from which data is being received.
+E.g.: `GA`: Galileo Positioning System; `GB`: BDS (BeiDou System); `GL`: GLONASS Receiver; `GN`: Global Navigation Satellite System (GNSS); `GP`: Global Positioning System (GPS)
+See: https://gpsd.gitlab.io/gpsd/NMEA.html#_talker_ids, or https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
+
+**`sentence_type`**:
+One of several types of NMEA sentences that can be received from the talker.
+E.g.: `RMC`, `VTG`, `GGA`, `GSA`, `GSV`, `GLL`
+See: https://gpsd.gitlab.io/gpsd/NMEA.html#_nmea_standard_sentences
+
 ## Setup
 
-Your input file should have a format similiar to those under `test_data`. To have your data datetime stamped, it must be in a format like that of `test_data/test_data_all.nmea`, with RMC sentences containing date and time stamps proceed other sentences in the same cycle.
+Input data files can contain either sentences having all the same `talker`+`sentence_type`, like that of `test_data/test_data_GLGSV.nmea`, `test_data_GNGGA.nmea`, etc., or cycles of sentences like that of `test_data/test_data_all.nmea`. Your input file should have a format similiar to those under `test_data`.
+
+To have your data datetime stamped, it must be in a format like that of `test_data/test_data_all.nmea`, with RMC sentences containing date and time stamps proceeding other sentences in the same cycle. 
+
+Useage of the `cycle_start` (`cs`), `num_sentences_per_cycle` (`spc`), and `backfill_datetimes` (`bfdt`) parameters will depend on the format of your data, and some combination of them is required. See below for examples. See the Usage section for explanations of the parameters.
+
 
 If working with a database, the database access information/credentials must be setup in `db_creds.py`.
-
-The `cycle_start` `talker`+`sentence_type`, e.g. `GNRMC`, passed to `datetime_stamp_sentences()` and `assign_cycle_ids()`, must appear once and only once in each cycle, and it must be at the beginning of each cycle. For sentences to be datetime stamped, `cycle_start` sentences must contain date and time information. The `--backfill_datetimes` flag can be used to back fill datetimes for cycles where that information was not avaiable.
 
 
 ## Usage
@@ -15,9 +34,7 @@ $ cd nmea_data_convert/
 $ pip install -r requirements.txt 
 ...
 $ python nmea_data_convert.py --help
-usage: nmea_data_convert.py [-h] [--drop_previous_db_tables]
-                            [--backfill_datetimes]
-                            filepath {csv,db,both}
+usage: nmea_data_convert.py [-h] [--cycle_start CYCLE_START] [--num_sentences_per_cycle NUM_SENTENCES_PER_CYCLE] [--backfill_datetimes] [--drop_previous_db_tables] filepath {csv,db,both}
 
 positional arguments:
   filepath              file system path to file containing NMEA data
@@ -25,19 +42,24 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --drop_previous_db_tables, --dropt
-                        drop previous DB tables before importing new data;
-                        only applies when output_method is 'db' or 'both'
+  --cycle_start CYCLE_START, --cs CYCLE_START
+                        talker+sentence_type, e.g. 'GNRMC'; used to key off of for sentence merging, and more; must appear once and only once in each cycle, and must be at the beginning of each cycle; must contain date and time information for sentences to be datetime
+                        stamped
+  --num_sentences_per_cycle NUM_SENTENCES_PER_CYCLE, --spc NUM_SENTENCES_PER_CYCLE
+                        If the cycle_start argument is not provided, and sentences are not all of type GSV, cycles will be inferred from this argument. Every num_sentences_per_cycle will be given the same cycle_id starting with the first sentence. Sentence merging is
+                        based on cycle_id.
   --backfill_datetimes, --bfdt
-                        backfill datetimes where missing by extrapolating from
-                        messages with datetime information
+                        backfill datetimes where missing by extrapolating from messages with datetime information
+  --drop_previous_db_tables, --dropt
+                        drop all previous DB tables before importing new data; only applies when output_method is 'db' or 'both'
 ```
 ## Examples
 ### Example 1
+Output cycles of NMEA sentences to CSV files using GNRMC sentences as the cycle start:
 ```
 $ ls -l *.csv
 ls: *.csv: No such file or directory
-$ python nmea_data_convert.py test_data/test_data_all.nmea csv
+$ python nmea_data_convert.py test_data/test_data_all.nmea csv --cs GNRMC
 
 Reading in data... done.
 
@@ -56,40 +78,20 @@ done.
 All done. Exiting.
 
 
-$ ls -l *.csv
--rw-r--r--  1 Thomas  staff  14310 Dec 30 18:19 test_data_all_GLGSV.csv
--rw-r--r--  1 Thomas  staff   9502 Dec 30 18:19 test_data_all_GNGGA.csv
--rw-r--r--  1 Thomas  staff   6852 Dec 30 18:19 test_data_all_GNGLL.csv
--rw-r--r--  1 Thomas  staff  18472 Dec 30 18:19 test_data_all_GNGSA.csv
--rw-r--r--  1 Thomas  staff   8672 Dec 30 18:19 test_data_all_GNRMC.csv
--rw-r--r--  1 Thomas  staff   5779 Dec 30 18:19 test_data_all_GNVTG.csv
--rw-r--r--  1 Thomas  staff  40263 Dec 30 18:19 test_data_all_GPGSV.csv
+MacBook-Pro-4:nmea_data_convert Thomas$ ls -l *.csv
+-rw-r--r--  1 Thomas  staff  16166 Jan 17 16:55 test_data_all_GLGSV.csv
+-rw-r--r--  1 Thomas  staff  12067 Jan 17 16:55 test_data_all_GNGGA.csv
+-rw-r--r--  1 Thomas  staff   9401 Jan 17 16:55 test_data_all_GNGLL.csv
+-rw-r--r--  1 Thomas  staff  14136 Jan 17 16:55 test_data_all_GNGSA.csv
+-rw-r--r--  1 Thomas  staff  12536 Jan 17 16:55 test_data_all_GNRMC.csv
+-rw-r--r--  1 Thomas  staff   8344 Jan 17 16:55 test_data_all_GNVTG.csv
+-rw-r--r--  1 Thomas  staff  20698 Jan 17 16:55 test_data_all_GPGSV.csv
 ```
 
 ### Example 2
+Output cycles of NMEA sentences to both CSV files and database using GNRMC sentences as the cycle start, backfill datetimes, and drop previous tables from database:
 ```
-$ python nmea_data_convert.py test_data/test_data_all.nmea db
-
-Reading in data... done.
-
-Processing data... done.
-
-Writing data to database... data from logfile 'test_data/test_data_all.nmea' written to:
-  'nmea_gn_rmc' table in 'nmea_data' database
-  'nmea_gn_vtg' table in 'nmea_data' database
-  'nmea_gn_gga' table in 'nmea_data' database
-  'nmea_gn_gsa' table in 'nmea_data' database
-  'nmea_gp_gsv' table in 'nmea_data' database
-  'nmea_gl_gsv' table in 'nmea_data' database
-  'nmea_gn_gll' table in 'nmea_data' database
-done.
-
-All done. Exiting.
-```
-
-### Example 3
-```
-$ python nmea_data_convert.py test_data/test_data_all.nmea both --bfdt --dropt
+$ python nmea_data_convert.py test_data/test_data_all.nmea both --bfdt --dropt --cs GNRMC
 
 Reading in data... done.
 
@@ -126,8 +128,39 @@ done.
 All done. Exiting.
 ```
 
+### Example 3
+Convert sentences, all of the same `talker`+`sentence_type`, to database:
+```
+$ python nmea_data_convert.py test_data/test_data_GNVTG.nmea db --spc 1
 
-## References Used in Development
+Reading in data... done.
+
+Processing data... done.
+
+Writing data to database... data from logfile 'test_data/test_data_GNVTG.nmea' written to:
+  'nmea_gn_vtg' table in 'nmea_data' database
+done.
+
+All done. Exiting.
+
+```
+
+### Example 4
+Convert GSV sentences, all of the same `talker`, to database, where there may sometimes be multiple messages from the same cycle. In this case, cycles must start with the sentence having the `msg_num` field equal to `1` (see `test_data/test_data_GPGSV.nmea`:
+```
+$ python nmea_data_convert.py test_data/test_data_GPGSV.nmea db
+[output excluded for brevity]
+```
+
+### Example 5
+Convert GSA sentences, all of the same `talker`, to database, where each sentence is part of a cycle containing two GSA sentences. Cycles may contain a GSA sentence for each constellation (see `test_data/test_data_GNGSA.nmea`:
+```
+$ python nmea_data_convert.py test_data/test_data_GNGSA.nmea db --spc 2
+[output excluded for brevity]
+```
+
+
+## Helpful References
 https://github.com/Knio/pynmea2/blob/master/README.md
 
 https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29.pdf (section 31 'NMEA Protocol')
@@ -138,9 +171,9 @@ https://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_MessageOverv
 
 Talker Identifiers : https://www.nmea.org/Assets/20190303%20nmea%200183%20talker%20identifier%20mnemonics.pdf
 
-https://www.unavco.org/help/glossary/glossary.html
+Glossary : https://www.unavco.org/help/glossary/glossary.html
 
-
+https://gpsd.gitlab.io/gpsd/NMEA.html#_nmea_standard_sentences
 
 ## Support
 If you find this tool useful, please consider supporting development of this tool and other tools like it. You can do so using the `Sponsor` button at the top of the [GitHub page](https://github.com/Petrichor-Labs/nmea_data_convert).
