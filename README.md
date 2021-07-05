@@ -18,9 +18,9 @@ See: https://gpsd.gitlab.io/gpsd/NMEA.html#_nmea_standard_sentences
 
 ## Setup
 
-Input data files can contain either sentences having all the same `talker`+`sentence_type`, like that of `test_data/test_data_GLGSV.nmea`, `test_data_GNGGA.nmea`, etc., or cycles of sentences like that of `test_data/test_data_all.nmea`. Your input file should have a format similiar to those under `test_data`.
+Input data files can contain either sentences having all the same `talker`+`sentence_type`, like that of `test_data/test_data_0_GLGSV.nmea`, `test_data_0_GNGGA.nmea`, etc., or cycles of sentences like that of `test_data/test_data_0_all.nmea`. Your input file should have a format similiar to those under `test_data`.
 
-To have your data datetime stamped, it must be in a format like that of `test_data/test_data_all.nmea`, with RMC sentences containing date and time stamps proceeding other sentences in the same cycle. 
+To have your data datetime stamped, it must be in a format like that of `test_data/test_data_0_all.nmea`, with RMC sentences containing date and time stamps proceeding other sentences in the same cycle. 
 
 Useage of the `cycle_start` (`cs`), `num_sentences_per_cycle` (`spc`), and `backfill_datetimes` (`bfdt`) parameters will depend on the format of your data, and some combination of them is required. See below for examples. See the Usage section for explanations of the parameters.
 
@@ -59,52 +59,52 @@ Output cycles of NMEA sentences to CSV files using GNRMC sentences as the cycle 
 ```
 $ ls -l *.csv
 ls: *.csv: No such file or directory
-$ python nmea_data_convert.py test_data/test_data_all.nmea csv --cs GNRMC
+$ python nmea_data_convert.py test_data/test_data_0_all.nmea csv --cs GNRMC
 
 Reading in data... done.
 
 Processing data... done.
 
-Writing data to CSVs... data from logfile 'test_data/test_data_all.nmea' written to:
-  test_data_all_GNRMC.csv
-  test_data_all_GNVTG.csv
-  test_data_all_GNGGA.csv
-  test_data_all_GNGSA.csv
-  test_data_all_GPGSV.csv
-  test_data_all_GLGSV.csv
-  test_data_all_GNGLL.csv
+Writing data to CSVs... data from logfile 'test_data/test_data_0_all.nmea' written to:
+  test_data_0_all_GNRMC.csv
+  test_data_0_all_GNVTG.csv
+  test_data_0_all_GNGGA.csv
+  test_data_0_all_GNGSA.csv
+  test_data_0_all_GPGSV.csv
+  test_data_0_all_GLGSV.csv
+  test_data_0_all_GNGLL.csv
 done.
 
 All done. Exiting.
 
 
 MacBook-Pro-4:nmea_data_convert Thomas$ ls -l *.csv
--rw-r--r--  1 Thomas  staff  16166 Jan 17 16:55 test_data_all_GLGSV.csv
--rw-r--r--  1 Thomas  staff  12067 Jan 17 16:55 test_data_all_GNGGA.csv
--rw-r--r--  1 Thomas  staff   9401 Jan 17 16:55 test_data_all_GNGLL.csv
--rw-r--r--  1 Thomas  staff  14136 Jan 17 16:55 test_data_all_GNGSA.csv
--rw-r--r--  1 Thomas  staff  12536 Jan 17 16:55 test_data_all_GNRMC.csv
--rw-r--r--  1 Thomas  staff   8344 Jan 17 16:55 test_data_all_GNVTG.csv
--rw-r--r--  1 Thomas  staff  20698 Jan 17 16:55 test_data_all_GPGSV.csv
+-rw-r--r--  1 Thomas  staff  16166 Jan 17 16:55 test_data_0_all_GLGSV.csv
+-rw-r--r--  1 Thomas  staff  12067 Jan 17 16:55 test_data_0_all_GNGGA.csv
+-rw-r--r--  1 Thomas  staff   9401 Jan 17 16:55 test_data_0_all_GNGLL.csv
+-rw-r--r--  1 Thomas  staff  14136 Jan 17 16:55 test_data_0_all_GNGSA.csv
+-rw-r--r--  1 Thomas  staff  12536 Jan 17 16:55 test_data_0_all_GNRMC.csv
+-rw-r--r--  1 Thomas  staff   8344 Jan 17 16:55 test_data_0_all_GNVTG.csv
+-rw-r--r--  1 Thomas  staff  20698 Jan 17 16:55 test_data_0_all_GPGSV.csv
 ```
 
 ### Example 2
 Output cycles of NMEA sentences to both CSV files and database using GNRMC sentences as the cycle start, backfill datetimes, and drop previous tables from database:
 ```
-$ python nmea_data_convert.py test_data/test_data_all.nmea both --bfdt --dropt --cs GNRMC
+$ python nmea_data_convert.py test_data/test_data_0_all.nmea both --bfdt --dropt --cs GNRMC
 
 Reading in data... done.
 
 Processing data... done.
 
-Writing data to CSVs... data from logfile 'test_data/test_data_all.nmea' written to:
-  test_data_all_GNRMC.csv
-  test_data_all_GNVTG.csv
-  test_data_all_GNGGA.csv
-  test_data_all_GNGSA.csv
-  test_data_all_GPGSV.csv
-  test_data_all_GLGSV.csv
-  test_data_all_GNGLL.csv
+Writing data to CSVs... data from logfile 'test_data/test_data_0_all.nmea' written to:
+  test_data_0_all_GNRMC.csv
+  test_data_0_all_GNVTG.csv
+  test_data_0_all_GNGGA.csv
+  test_data_0_all_GNGSA.csv
+  test_data_0_all_GPGSV.csv
+  test_data_0_all_GLGSV.csv
+  test_data_0_all_GNGLL.csv
 done.
 
 Dropping database table nmea_gl_gsv (and any dependent objects) if it exists.
@@ -115,7 +115,7 @@ Dropping database table nmea_gn_rmc (and any dependent objects) if it exists.
 Dropping database table nmea_gn_vtg (and any dependent objects) if it exists.
 Dropping database table nmea_gp_gsv (and any dependent objects) if it exists.
 
-Writing data to database... data from logfile 'test_data/test_data_all.nmea' written to:
+Writing data to database... data from logfile 'test_data/test_data_0_all.nmea' written to:
   'nmea_gn_rmc' table in 'nmea_data' database
   'nmea_gn_vtg' table in 'nmea_data' database
   'nmea_gn_gga' table in 'nmea_data' database
@@ -131,13 +131,13 @@ All done. Exiting.
 ### Example 3
 Convert sentences, all of the same `talker`+`sentence_type`, to database:
 ```
-$ python nmea_data_convert.py test_data/test_data_GNVTG.nmea db --spc 1
+$ python nmea_data_convert.py test_data/test_data_0_GNVTG.nmea db --spc 1
 
 Reading in data... done.
 
 Processing data... done.
 
-Writing data to database... data from logfile 'test_data/test_data_GNVTG.nmea' written to:
+Writing data to database... data from logfile 'test_data/test_data_0_GNVTG.nmea' written to:
   'nmea_gn_vtg' table in 'nmea_data' database
 done.
 
@@ -146,16 +146,16 @@ All done. Exiting.
 ```
 
 ### Example 4
-Convert GSV sentences, all of the same `talker`, to database, where there may sometimes be multiple messages from the same cycle. In this case, cycles must start with the sentence having the `msg_num` field equal to `1` (see `test_data/test_data_GPGSV.nmea`:
+Convert GSV sentences, all of the same `talker`, to database, where there may sometimes be multiple messages from the same cycle. In this case, cycles must start with the sentence having the `msg_num` field equal to `1` (see `test_data/test_data_0_GPGSV.nmea`:
 ```
-$ python nmea_data_convert.py test_data/test_data_GPGSV.nmea db
+$ python nmea_data_convert.py test_data/test_data_0_GPGSV.nmea db
 [output excluded for brevity]
 ```
 
 ### Example 5
-Convert GSA sentences, all of the same `talker`, to database, where each sentence is part of a cycle containing two GSA sentences. Cycles may contain a GSA sentence for each constellation (see `test_data/test_data_GNGSA.nmea`:
+Convert GSA sentences, all of the same `talker`, to database, where each sentence is part of a cycle containing two GSA sentences. Cycles may contain a GSA sentence for each constellation (see `test_data/test_data_0_GNGSA.nmea`:
 ```
-$ python nmea_data_convert.py test_data/test_data_GNGSA.nmea db --spc 2
+$ python nmea_data_convert.py test_data/test_data_0_GNGSA.nmea db --spc 2
 [output excluded for brevity]
 ```
 

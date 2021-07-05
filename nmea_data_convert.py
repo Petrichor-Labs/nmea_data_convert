@@ -7,7 +7,6 @@ import pandas as pd
 from collections import namedtuple
 import re
 import numpy as np
-# import LatLon23
 import functools
 print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
 
@@ -365,28 +364,27 @@ def sentences_to_dataframes(sentence_sets):
             row_data.insert(4, dts_sentence.sentence.talker)
             row_data.insert(5, dts_sentence.sentence.sentence_type)
 
-            # For non-merged GSV or GSA sentences with less data than merged sentences, fill with NaNs where there is no data
-            if sentence_type in ['GSV', 'GSA'] and not sentence_is_merged:
+            # For GSV sentences with less data than others, fill with NaNs where there is no data
+            if sentence_type in ['GSV']:
                 placeholders = [np.NaN] * (len(columns) - len(row_data))
-                if sentence_type == 'GSV':
-                    row_data = row_data + placeholders
-                elif sentence_type == 'GSA':
-                    # Make sure SV ID data gets put in correct (GP vs GL) columns 
-                    sv_ids_in_sentence = row_data[8:20]
-                    glonass_ids = range(65,96+1)  # See notes in MergedSentence_GSA class
-                    # Row data consists of: 6 elements inserted above, 2 elements, 12 SV IDs, 3 elements
-                    # Columns/fields consist of: 6 elements inserted above, 2 elements, 12 GP SV IDs, 12 GL SV IDs, 3 elements
-                    if len(set(sv_ids_in_sentence) & set(glonass_ids)):  # If there are GLONASS SV IDs in the sentence
-                        row_data = row_data[:-15] + placeholders + row_data[-15:]
-                    else:
-                        row_data = row_data[:-3]  + placeholders + row_data[-3:]
+                row_data = row_data + placeholders
+            
+            # For non-merged GSA sentences with less data than merged sentences, fill with NaNs where there is no data
+            if sentence_type == 'GSA' and not sentence_is_merged:
+                placeholders = [np.NaN] * (len(columns) - len(row_data))
+                # Make sure SV ID data gets put in correct (GP vs GL) columns 
+                sv_ids_in_sentence = row_data[8:20]
+                glonass_ids = range(65,96+1)  # See notes in MergedSentence_GSA class
+                # Row data consists of: 6 elements inserted above, 2 elements, 12 SV IDs, 3 elements
+                # Columns/fields consist of: 6 elements inserted above, 2 elements, 12 GP SV IDs, 12 GL SV IDs, 3 elements
+                if len(set(sv_ids_in_sentence) & set(glonass_ids)):  # If there are GLONASS SV IDs in the sentence
+                    row_data = row_data[:-15] + placeholders + row_data[-15:]
+                else:
+                    row_data = row_data[:-3]  + placeholders + row_data[-3:]
 
             list_of_data_rows.append(row_data)
 
         df = df.append(pd.DataFrame(list_of_data_rows, columns=df.columns))
-            # Much faster than
-            #   df.loc[len(df)] = row_data
-            # method
 
         dfs.append(df)
 
@@ -448,14 +446,13 @@ def dfs_to_db(sentence_dfs, input_file_path, verbose=False):
     # Pass lowercase 'talker_sentencetype' as table name suffixes
     table_name_suffixes = [f"{df['talker'][0]}_{df['sentence_type'][0]}".lower() for df in sentence_dfs]
 
-    # Determine database datatypes for columns in columns_to_cast
+    # Construct a dictionary of database datatypes for each column to import, using columns_to_cast
     for df in sentence_dfs:
         sentence_type = df['sentence_type'][0]
         for py_datatype in datatype_dict.keys():
             if (sentence_type, py_datatype) in columns_to_cast:  # If key exists in dictionary
                 for column in columns_to_cast[sentence_type, py_datatype]:
                     db_datatypes[column] = datatype_dict[py_datatype]  # Get database datatype for column
-
 
     table_names = db_data_import.send_data_to_db(input_file_path, sentence_dfs, table_name_base, table_name_suffixes, dtypes=db_datatypes)
 
