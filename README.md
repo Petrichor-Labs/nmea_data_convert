@@ -3,13 +3,12 @@ This library makes use of [pynmea2](https://github.com/Knio/pynmea2) to parse th
 ## Table of Contents
 1. [Terminology](#terminology)
 1. [Setup](#setup)
-1. [Usage](#Usage)
-1. [Examples](#Examples)
-1. [Examples](#Examples)
-1. [Development Notes/Oddities](#Development Notes/Oddities)
-1. [Helpful References](#Helpful%20References)
-1. [Grafana](#Grafana)
-1. [Discussion](#Discussion)
+1. [Usage](#usage)
+1. [Examples](#examples)
+1. [Development Notes/Oddities](#development-notes-and-oddities)
+1. [Helpful References](#helpful-references)
+1. [Grafana](#grafana)
+1. [Discussion](#discussion)
 
 
 ## Support
@@ -201,7 +200,7 @@ $ python nmea_data_convert.py test_data/test_data_0_GNGSA.nmea db -spc 2
 [output excluded for brevity]
 ```
 
-## Development Notes/Oddities
+## Development Notes and Oddities
 - Sentence cycles contain a variable number of GPGSV sentences. A single GPGSV sentence contains information for 0-4 GPS satellites. A GNSS receiver could see up to 16 GPS satellites (https://stackoverflow.com/a/16415858/2909854, that may apply only on the ground?), resulting in up to four GPGSV sentences in a single cycle, e.g.:
   ```
   ...
