@@ -5,7 +5,7 @@ This library makes use of [pynmea2](https://github.com/Knio/pynmea2) to parse th
 1. [Setup](#setup)
 1. [Usage](#usage)
 1. [Examples](#examples)
-1. [Development Notes/Oddities](#development-notes-and-oddities)
+1. [Development Notes and Oddities](#development-notes-and-oddities)
 1. [Helpful References](#helpful-references)
 1. [Grafana](#grafana)
 1. [Discussion](#discussion)
