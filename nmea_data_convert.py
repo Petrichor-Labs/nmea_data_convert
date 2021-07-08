@@ -7,6 +7,8 @@ import pandas as pd
 from collections import namedtuple
 import re
 import numpy as np
+
+# TODO: Overriding the print function isn't a good way to handle this, replace with a custom library that does this
 import functools
 print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
 
@@ -26,19 +28,19 @@ def parse_and_validate_args():
     parser.add_argument("output_method",
                             choices=['csv', 'db', 'both'],
                             help="where to output data: CSV files, database, or both")
-    parser.add_argument("--cycle_start", "--cs",
-                            help="talker+sentence_type, e.g. 'GNRMC'; used to key off of for sentence merging, and more; "
+    parser.add_argument("--cycle_start", "-cs",
+                            help="talker+sentence_type, e.g. 'GNRMC', used to key off of for sentence merging and more; "
                                  "must appear once and only once in each cycle, and must be at the beginning of each cycle; "
                                  "must contain date and time information for sentences to be datetime stamped")
-    parser.add_argument("--num_sentences_per_cycle", "--spc",  # Requirement for this is enforced in assign_cycle_ids()
+    parser.add_argument("--num_sentences_per_cycle", "-spc",  # Requirement for this is enforced in assign_cycle_ids()
                             type=int,
                             help="If the cycle_start argument is not provided, and sentences are not all of type GSV, "
                                  "cycles will be inferred from this argument. Every num_sentences_per_cycle will be given "
                                  "the same cycle_id starting with the first sentence. Sentence merging is based on cycle_id.")
-    parser.add_argument("--backfill_datetimes", "--bfdt",
+    parser.add_argument("--backfill_datetimes", "-bfdt",
                             action="store_true",
                             help="backfill datetimes where missing by extrapolating from messages with datetime information")
-    parser.add_argument("--drop_previous_db_tables", "--dropt",
+    parser.add_argument("--drop_previous_db_tables", "-dropt",
                             action="store_true",
                             help="drop all previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
 
@@ -141,7 +143,7 @@ def assign_cycle_ids(dts_sentences, args):
     # TODO: Check database for highest cycle_id and start there so that IDs will be unique across runs of this script
 
     cycle_start=args.cycle_start
-    if cycle_start:
+    if not cycle_start:
         cycle_start = 'GNRMC'
 
     unique_talker_and_type_pairs = set([dts_sentence.sentence.talker + dts_sentence.sentence.sentence_type for dts_sentence in dts_sentences])
@@ -164,7 +166,7 @@ def assign_cycle_ids(dts_sentences, args):
     else:
         num_sentences_per_cycle = args.num_sentences_per_cycle
         if num_sentences_per_cycle is None:
-            sys.exit("\n\nERROR: If an argument for cycle_start is not provided, and sentences are not exclusively "
+            sys.exit("\n\nERROR: If an argument for cycle_start is not provided or is not valid, and sentences are not exclusively "
                      "GPGSV xor GLGSV sentences, then the num_sentences_per_cycle argument must be provided.\n\nExiting.\n")
         cycle_id = -1
         cycle_start_idxs = range(0, len(dts_sentences), num_sentences_per_cycle)
@@ -562,12 +564,12 @@ class MergedSentence_GSA:
         return str(self.cycle_id) + ' ' + str(self.sentence.talker) + ' ' + str(self.sentence.sentence_type) + ' ' + str(self.sentence.data) + ' ' + str(self.date_time)
 
 
-# Add fields for SVs 5-12. 12 SVs seems to be a common number of maximum supported SVs for GNSS devices
+# Add fields for SVs 5-16. See the Development Notes/Oddities section of README.md
 def expand_GSV_fields(fields):
 
     fields = list(fields)  # Make mutable
     fields_to_duplicate = [field for field in fields if field[0].endswith('4')]  # Original GSV sentence supports 0-4 SVs, so copy and change fields for SV 4
-    for SV_idx in range(5, 12+1):
+    for SV_idx in range(5, 16+1):
         new_fields = [(re.sub(r'4$', str(SV_idx), field[0]), re.sub(r'4$', str(SV_idx), field[1])) for field in fields_to_duplicate]
         fields = fields + new_fields
     fields = tuple(fields)  # Return to original immutable tuple state

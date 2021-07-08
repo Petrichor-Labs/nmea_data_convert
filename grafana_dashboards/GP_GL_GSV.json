@@ -1,0 +1,871 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "id": 1,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "decimals": 0,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 0.5,
+      "points": true,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  num_sv_in_view AS \"GPS\"\nFROM nmea_gp_gsv\nWHERE\n  $__timeFilter(datetime)\nORDER BY time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  num_sv_in_view AS \"GLONASS\"\nFROM nmea_gl_gsv\nWHERE\n  $__timeFilter(datetime)\nORDER BY time",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Number of Space Vehicles in View",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:233",
+          "decimals": 0,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": "16",
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:234",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "decimals": 0,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "hiddenSeries": false,
+      "id": 6,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 0.5,
+      "points": true,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  snr_1  AS \"GPS SV  1 SNR\",\n  snr_2  AS \"GPS SV  2 SNR\",\n  snr_3  AS \"GPS SV  3 SNR\",\n  snr_4  AS \"GPS SV  4 SNR\",\n  snr_5  AS \"GPS SV  5 SNR\",\n  snr_6  AS \"GPS SV  6 SNR\",\n  snr_7  AS \"GPS SV  7 SNR\",\n  snr_8  AS \"GPS SV  8 SNR\",\n  snr_9  AS \"GPS SV  9 SNR\",\n  snr_10 AS \"GPS SV 10 SNR\",\n  snr_11 AS \"GPS SV 11 SNR\",\n  snr_12 AS \"GPS SV 12 SNR\",\n  snr_13 AS \"GPS SV 13 SNR\",\n  snr_14 AS \"GPS SV 14 SNR\",\n  snr_15 AS \"GPS SV 15 SNR\",\n  snr_16 AS \"GPS SV 16 SNR\"\nFROM nmea_gp_gsv\nWHERE\n  $__timeFilter(datetime)\n  AND snr_1 IS NOT NULL\nORDER BY time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  snr_1  AS \"GLONASS SV  1 SNR\",\n  snr_2  AS \"GLONASS SV  2 SNR\",\n  snr_3  AS \"GLONASS SV  3 SNR\",\n  snr_4  AS \"GLONASS SV  4 SNR\",\n  snr_5  AS \"GLONASS SV  5 SNR\",\n  snr_6  AS \"GLONASS SV  6 SNR\",\n  snr_7  AS \"GLONASS SV  7 SNR\",\n  snr_8  AS \"GLONASS SV  8 SNR\",\n  snr_9  AS \"GLONASS SV  9 SNR\",\n  snr_10 AS \"GLONASS SV 10 SNR\",\n  snr_11 AS \"GLONASS SV 11 SNR\",\n  snr_12 AS \"GLONASS SV 12 SNR\",\n  snr_13 AS \"GLONASS SV 13 SNR\",\n  snr_14 AS \"GLONASS SV 14 SNR\",\n  snr_15 AS \"GLONASS SV 15 SNR\",\n  snr_16 AS \"GLONASS SV 16 SNR\"\nFROM nmea_gl_gsv\nWHERE\n  $__timeFilter(datetime)\n  AND snr_1 IS NOT NULL\nORDER BY time",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Space Vehicle Signal to Noise Ratios",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:233",
+          "decimals": 0,
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:234",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "decimals": 0,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "hiddenSeries": false,
+      "id": 4,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 0.5,
+      "points": true,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  elevation_deg_1  AS \"GPS SV  1 Elevation\",\n  elevation_deg_2  AS \"GPS SV  2 Elevation\",\n  elevation_deg_3  AS \"GPS SV  3 Elevation\",\n  elevation_deg_4  AS \"GPS SV  4 Elevation\",\n  elevation_deg_5  AS \"GPS SV  5 Elevation\",\n  elevation_deg_6  AS \"GPS SV  6 Elevation\",\n  elevation_deg_7  AS \"GPS SV  7 Elevation\",\n  elevation_deg_8  AS \"GPS SV  8 Elevation\",\n  elevation_deg_9  AS \"GPS SV  9 Elevation\",\n  elevation_deg_10 AS \"GPS SV 10 Elevation\",\n  elevation_deg_11 AS \"GPS SV 11 Elevation\",\n  elevation_deg_12 AS \"GPS SV 12 Elevation\",\n  elevation_deg_13 AS \"GPS SV 13 Elevation\",\n  elevation_deg_14 AS \"GPS SV 14 Elevation\",\n  elevation_deg_15 AS \"GPS SV 15 Elevation\",\n  elevation_deg_16 AS \"GPS SV 16 Elevation\"\nFROM nmea_gp_gsv\nWHERE\n  $__timeFilter(datetime)\nORDER BY time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  elevation_deg_1  AS \"GLONASS SV  1 Elevation\",\n  elevation_deg_2  AS \"GLONASS SV  2 Elevation\",\n  elevation_deg_3  AS \"GLONASS SV  3 Elevation\",\n  elevation_deg_4  AS \"GLONASS SV  4 Elevation\",\n  elevation_deg_5  AS \"GLONASS SV  5 Elevation\",\n  elevation_deg_6  AS \"GLONASS SV  6 Elevation\",\n  elevation_deg_7  AS \"GLONASS SV  7 Elevation\",\n  elevation_deg_8  AS \"GLONASS SV  8 Elevation\",\n  elevation_deg_9  AS \"GLONASS SV  9 Elevation\",\n  elevation_deg_10 AS \"GLONASS SV 10 Elevation\",\n  elevation_deg_11 AS \"GLONASS SV 11 Elevation\",\n  elevation_deg_12 AS \"GLONASS SV 12 Elevation\",\n  elevation_deg_13 AS \"GLONASS SV 13 Elevation\",\n  elevation_deg_14 AS \"GLONASS SV 14 Elevation\",\n  elevation_deg_15 AS \"GLONASS SV 15 Elevation\",\n  elevation_deg_16 AS \"GLONASS SV 16 Elevation\"\nFROM nmea_gl_gsv\nWHERE\n  $__timeFilter(datetime)\nORDER BY time",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Space Vehicle Elevations",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:233",
+          "decimals": 0,
+          "format": "degree",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:234",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "decimals": 0,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "hiddenSeries": false,
+      "id": 5,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 0.5,
+      "points": true,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  azimuth_1  AS \"GPS SV  1 Azimuth\",\n  azimuth_2  AS \"GPS SV  2 Azimuth\",\n  azimuth_3  AS \"GPS SV  3 Azimuth\",\n  azimuth_4  AS \"GPS SV  4 Azimuth\",\n  azimuth_5  AS \"GPS SV  5 Azimuth\",\n  azimuth_6  AS \"GPS SV  6 Azimuth\",\n  azimuth_7  AS \"GPS SV  7 Azimuth\",\n  azimuth_8  AS \"GPS SV  8 Azimuth\",\n  azimuth_9  AS \"GPS SV  9 Azimuth\",\n  azimuth_10 AS \"GPS SV 10 Azimuth\",\n  azimuth_11 AS \"GPS SV 11 Azimuth\",\n  azimuth_12 AS \"GPS SV 12 Azimuth\",\n  azimuth_13 AS \"GPS SV 13 Azimuth\",\n  azimuth_14 AS \"GPS SV 14 Azimuth\",\n  azimuth_15 AS \"GPS SV 15 Azimuth\",\n  azimuth_16 AS \"GPS SV 16 Azimuth\"\nFROM nmea_gp_gsv\nWHERE\n  $__timeFilter(datetime)\nORDER BY time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  azimuth_1  AS \"GLONASS SV  1 Azimuth\",\n  azimuth_2  AS \"GLONASS SV  2 Azimuth\",\n  azimuth_3  AS \"GLONASS SV  3 Azimuth\",\n  azimuth_4  AS \"GLONASS SV  4 Azimuth\",\n  azimuth_5  AS \"GLONASS SV  5 Azimuth\",\n  azimuth_6  AS \"GLONASS SV  6 Azimuth\",\n  azimuth_7  AS \"GLONASS SV  7 Azimuth\",\n  azimuth_8  AS \"GLONASS SV  8 Azimuth\",\n  azimuth_9  AS \"GLONASS SV  9 Azimuth\",\n  azimuth_10 AS \"GLONASS SV 10 Azimuth\",\n  azimuth_11 AS \"GLONASS SV 11 Azimuth\",\n  azimuth_12 AS \"GLONASS SV 12 Azimuth\",\n  azimuth_13 AS \"GLONASS SV 13 Azimuth\",\n  azimuth_14 AS \"GLONASS SV 14 Azimuth\",\n  azimuth_15 AS \"GLONASS SV 15 Azimuth\",\n  azimuth_16 AS \"GLONASS SV 16 Azimuth\"\nFROM nmea_gl_gsv\nWHERE\n  $__timeFilter(datetime)\nORDER BY time",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Space Vehicle Azimuths",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:233",
+          "decimals": 0,
+          "format": "degree",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:234",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "decimals": 0,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "hiddenSeries": false,
+      "id": 3,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 0.5,
+      "points": true,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  sv_prn_num_1  AS \"GPS SV  1 PRN\",\n  sv_prn_num_2  AS \"GPS SV  2 PRN\",\n  sv_prn_num_3  AS \"GPS SV  3 PRN\",\n  sv_prn_num_4  AS \"GPS SV  4 PRN\",\n  sv_prn_num_5  AS \"GPS SV  5 PRN\",\n  sv_prn_num_6  AS \"GPS SV  6 PRN\",\n  sv_prn_num_7  AS \"GPS SV  7 PRN\",\n  sv_prn_num_8  AS \"GPS SV  8 PRN\",\n  sv_prn_num_9  AS \"GPS SV  9 PRN\",\n  sv_prn_num_10 AS \"GPS SV 10 PRN\",\n  sv_prn_num_11 AS \"GPS SV 11 PRN\",\n  sv_prn_num_12 AS \"GPS SV 12 PRN\",\n  sv_prn_num_13 AS \"GPS SV 13 PRN\",\n  sv_prn_num_14 AS \"GPS SV 14 PRN\",\n  sv_prn_num_15 AS \"GPS SV 15 PRN\",\n  sv_prn_num_16 AS \"GPS SV 16 PRN\"\nFROM nmea_gp_gsv\nWHERE\n  $__timeFilter(datetime)\nORDER BY time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "num_sv_in_view",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datetime AS \"time\",\n  sv_prn_num_1  AS \"GLONASS SV  1 PRN\",\n  sv_prn_num_2  AS \"GLONASS SV  2 PRN\",\n  sv_prn_num_3  AS \"GLONASS SV  3 PRN\",\n  sv_prn_num_4  AS \"GLONASS SV  4 PRN\",\n  sv_prn_num_5  AS \"GLONASS SV  5 PRN\",\n  sv_prn_num_6  AS \"GLONASS SV  6 PRN\",\n  sv_prn_num_7  AS \"GLONASS SV  7 PRN\",\n  sv_prn_num_8  AS \"GLONASS SV  8 PRN\",\n  sv_prn_num_9  AS \"GLONASS SV  9 PRN\",\n  sv_prn_num_10 AS \"GLONASS SV 10 PRN\",\n  sv_prn_num_11 AS \"GLONASS SV 11 PRN\",\n  sv_prn_num_12 AS \"GLONASS SV 12 PRN\",\n  sv_prn_num_13 AS \"GLONASS SV 13 PRN\",\n  sv_prn_num_14 AS \"GLONASS SV 14 PRN\",\n  sv_prn_num_15 AS \"GLONASS SV 15 PRN\",\n  sv_prn_num_16 AS \"GLONASS SV 16 PRN\"\nFROM nmea_gl_gsv\nWHERE\n  $__timeFilter(datetime)\nORDER BY time",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "datetime"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "num_sv_in_view"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "nmea_gl_gsv",
+          "timeColumn": "datetime",
+          "timeColumnType": "text",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Space Vehicle Pseudorandom Noise Codes",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:233",
+          "decimals": 0,
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:234",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "2021-07-05T23:44:00.000Z",
+    "to": "2021-07-06T00:08:00.000Z"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "GP/GL GSV - GNSS Satellites in View",
+  "uid": "nFdupRaMk",
+  "version": 18
+}
