@@ -6,4 +6,6 @@ nmea_tables = [
   'nmea_gn_rmc',
   'nmea_gn_vtg',
   'nmea_gp_gsv',
+  'nmea_gp_gns',
+  'nmea_gp_gst',
 ]

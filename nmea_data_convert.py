@@ -1,26 +1,27 @@
-import pynmea2
 import argparse
-import sys
-import os
-from datetime import datetime
-import pandas as pd
-from collections import namedtuple
-import re
-import numpy as np
-
-# TODO: Overriding the print function isn't a good way to handle this, replace with a custom library that does this
 import functools
-print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
+import os
+import re
+import sys
+from collections import namedtuple
+from datetime import datetime
 
-# Local modules/libary files:
-import db_data_import
+import numpy as np
+import pandas as pd
+import pynmea2
+
 import db_creds
-import db_utils
+import db_data_import
 import db_table_lists
+import db_utils
 from column_casting import columns_to_cast, datatype_dict, db_datatypes
 
 
-def parse_and_validate_args():
+# TODO: Overriding the print function isn't a good way to handle this, replace with a custom library that does this
+print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
+
+
+def parse_and_validate_args(passed_args):
 
     parser = argparse.ArgumentParser()
     parser.add_argument("filepath",
@@ -39,14 +40,13 @@ def parse_and_validate_args():
                                  "the same cycle_id starting with the first sentence. Sentence merging is based on cycle_id.")
     parser.add_argument("--backfill_datetimes", "-bfdt",
                             action="store_true",
-                            help="backfill datetimes where missing by extrapolating from messages with datetime information")
+                            help="backfill datetimes where missing by extrapolating/interpolating from messages "
+                                 "that do have datetime information")
     parser.add_argument("--drop_previous_db_tables", "-dropt",
                             action="store_true",
                             help="drop all previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
 
-
-
-    args = parser.parse_args()
+    args = parser.parse_args(passed_args)
 
     # Check if input file exists
     if not os.path.isfile(args.filepath):
@@ -351,7 +351,6 @@ def sentences_to_dataframes(sentence_sets):
         columns.insert(4, 'talker')
         columns.insert(5, 'sentence_type')
 
-        df = pd.DataFrame(columns=columns)
         list_of_data_rows = []
 
         for dts_sentence in sentence_set:
@@ -386,7 +385,7 @@ def sentences_to_dataframes(sentence_sets):
 
             list_of_data_rows.append(row_data)
 
-        df = df.append(pd.DataFrame(list_of_data_rows, columns=df.columns))
+        df = pd.DataFrame(list_of_data_rows, columns=columns)
 
         dfs.append(df)
 
@@ -603,9 +602,9 @@ def process_data_common(sentences, args):
     return sentence_dfs
 
 
-def main():
+def main(passed_args=None):
 
-    args = parse_and_validate_args()
+    args = parse_and_validate_args(passed_args)
 
     print("\nReading in data... ", end="")
     file = open_file(args.filepath)

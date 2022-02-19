@@ -40,6 +40,8 @@ E.g.:
   - `GSA`
   - `GSV`
   - `GLL`
+  - `GNS`
+  - `GST`
   
   See: https://gpsd.gitlab.io/gpsd/NMEA.html#_nmea_standard_sentences
 
