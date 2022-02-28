@@ -72,4 +72,4 @@ columns_to_cast['GSA', 'Int16']   = ['mode_fix_type', 'gp_sv_id01', 'gp_sv_id02'
 columns_to_cast['GSA', 'float32'] = ['pdop', 'hdop', 'vdop']
 columns_to_cast['GSA', 'text']    = ['mode']
 
-
+columns_to_cast['GST', 'float32'] = ['rms', 'std_dev_latitude', 'std_dev_longitude', 'std_dev_altitude']

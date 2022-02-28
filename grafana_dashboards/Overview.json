@@ -8,15 +8,23 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 10,
+  "id": 6,
+  "iteration": 1646028394423,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "circleMaxSize": "1",
@@ -25,13 +33,12 @@
         "#5794F2",
         "#5794F2"
       ],
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 0,
       "esMetric": "Count",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
       "gridPos": {
         "h": 23,
         "w": 24,
@@ -61,6 +68,10 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -88,8 +99,6 @@
         }
       ],
       "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Coordinates",
       "type": "grafana-worldmap-panel",
       "unitPlural": "",
@@ -98,19 +107,40 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 27,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "PostgreSQL - NMEA",
+          "value": "PostgreSQL - NMEA"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "postgres",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
   },
   "time": {
-    "from": "2021-07-05T23:44:00.000Z",
-    "to": "2021-07-06T00:08:00.000Z"
+    "from": "now-24h",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Overview",
   "uid": "t9gAuZLGz",
-  "version": 5
+  "version": 3,
+  "weekStart": ""
 }

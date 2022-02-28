@@ -8,22 +8,33 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4,
+  "id": 7,
+  "iteration": 1646028269300,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 0,
       "fieldConfig": {
         "defaults": {
@@ -59,7 +70,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -69,6 +80,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -106,9 +121,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Quality Indicator",
       "tooltip": {
         "shared": true,
@@ -117,9 +130,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -130,8 +141,6 @@
           "format": "none",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -139,22 +148,14 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
       "gridPos": {
         "h": 8,
         "w": 5,
@@ -166,7 +167,7 @@
         "content": "0 : No fix : No position fix (at power-up after losing satellite lock / GNSS fix but user limits exceeded\\\n1 : Autonomous GNSS fix : 2D GNSS fix / 3D GNSS fix / Combined GNSS/dead reckoning fix\\\n2 : Differential GNSS fix : 2D GNSS fix / 3D GNSS fix / Combined GNSS/dead reckoning fix\\\n4 : RTK fixed\\\n5 : RTK float\\\n6 : Estimated/Dead reckoning fix : Dead reckoning fix/Dead reckoning fix but user limits exceeded\\\n\\\n[u-blox 8 / u-blox M8 protocol specification](https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29.pdf), section 31.1.6",
         "mode": "markdown"
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "targets": [
         {
           "format": "time_series",
@@ -197,8 +198,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Quality Indicator Key",
       "type": "text"
     },
@@ -207,7 +206,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 0,
       "fieldConfig": {
         "defaults": {
@@ -243,7 +245,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -253,6 +255,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -290,9 +296,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Number of Satellites Used",
       "tooltip": {
         "shared": true,
@@ -301,9 +305,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -314,8 +316,6 @@
           "format": "none",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -323,14 +323,11 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -338,7 +335,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 2,
       "fieldConfig": {
         "defaults": {
@@ -374,7 +374,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -384,6 +384,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -421,9 +425,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Horizontal Dilution of Precision",
       "tooltip": {
         "shared": true,
@@ -432,9 +434,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -446,7 +446,6 @@
           "label": "",
           "logBase": 1,
           "max": "100",
-          "min": null,
           "show": true
         },
         {
@@ -454,14 +453,11 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -469,7 +465,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 4,
       "fieldConfig": {
         "defaults": {
@@ -518,7 +517,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -528,6 +527,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -565,9 +568,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Altitude",
       "tooltip": {
         "shared": true,
@@ -576,21 +577,16 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
           "$$hashKey": "object:233",
-          "decimals": null,
           "format": "lengthm",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -598,14 +594,11 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -613,7 +606,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 1,
       "fieldConfig": {
         "defaults": {
@@ -662,7 +658,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -672,6 +668,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -709,9 +709,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Geoid Separation",
       "tooltip": {
         "shared": true,
@@ -720,9 +718,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -733,8 +729,6 @@
           "format": "lengthm",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -742,14 +736,11 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -757,7 +748,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 1,
       "fieldConfig": {
         "defaults": {
@@ -793,7 +787,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -803,6 +797,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -840,9 +838,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Age of Differential Corrections",
       "tooltip": {
         "shared": true,
@@ -851,20 +847,16 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
           "$$hashKey": "object:233",
-          "decimals": null,
           "format": "s",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
@@ -873,14 +865,11 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -888,7 +877,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 0,
       "fieldConfig": {
         "defaults": {
@@ -924,7 +916,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -934,6 +926,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -971,9 +967,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Reference Station ID",
       "tooltip": {
         "shared": true,
@@ -982,9 +976,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -995,8 +987,6 @@
           "format": "none",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -1004,14 +994,11 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -1019,7 +1006,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 0,
       "fieldConfig": {
         "defaults": {
@@ -1055,7 +1045,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -1065,6 +1055,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -1102,9 +1096,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Datestamp",
       "tooltip": {
         "shared": true,
@@ -1113,9 +1105,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -1126,8 +1116,6 @@
           "format": "none",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -1135,14 +1123,11 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -1150,7 +1135,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 0,
       "fieldConfig": {
         "defaults": {
@@ -1186,7 +1174,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -1196,6 +1184,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -1233,9 +1225,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Timestamp",
       "tooltip": {
         "shared": true,
@@ -1244,9 +1234,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -1257,8 +1245,6 @@
           "format": "none",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -1266,14 +1252,11 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -1281,8 +1264,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "decimals": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "none"
@@ -1317,7 +1302,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -1327,6 +1312,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -1364,9 +1353,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Latitude",
       "tooltip": {
         "shared": true,
@@ -1375,21 +1362,17 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
           "$$hashKey": "object:233",
-          "decimals": null,
+          "decimals": 2,
           "format": "none",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -1397,23 +1380,14 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "folderId": null,
       "gridPos": {
         "h": 6,
         "w": 2,
@@ -1424,7 +1398,6 @@
       "id": 20,
       "limit": 10,
       "options": {
-        "folderId": null,
         "maxItems": 10,
         "query": "",
         "showHeadings": false,
@@ -1433,7 +1406,7 @@
         "showStarred": false,
         "tags": []
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "query": "",
       "recent": false,
       "search": false,
@@ -1469,8 +1442,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "type": "dashlist"
     },
     {
@@ -1478,8 +1449,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "decimals": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "none"
@@ -1514,7 +1487,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -1524,6 +1497,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -1561,9 +1538,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Longitude",
       "tooltip": {
         "shared": true,
@@ -1572,21 +1547,17 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
           "$$hashKey": "object:233",
-          "decimals": null,
+          "decimals": 2,
           "format": "none",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -1594,23 +1565,14 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "folderId": null,
       "gridPos": {
         "h": 6,
         "w": 2,
@@ -1621,7 +1583,6 @@
       "id": 21,
       "limit": 10,
       "options": {
-        "folderId": null,
         "maxItems": 10,
         "query": "",
         "showHeadings": false,
@@ -1630,7 +1591,7 @@
         "showStarred": false,
         "tags": []
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "query": "",
       "recent": false,
       "search": false,
@@ -1666,8 +1627,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "type": "dashlist"
     },
     {
@@ -1675,7 +1634,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 0,
       "fieldConfig": {
         "defaults": {
@@ -1711,7 +1673,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -1721,6 +1683,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -1758,9 +1724,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Latitude Direction",
       "tooltip": {
         "shared": true,
@@ -1769,9 +1733,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -1783,7 +1745,6 @@
           "label": "",
           "logBase": 1,
           "max": "1",
-          "min": null,
           "show": true
         },
         {
@@ -1791,22 +1752,14 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
       "gridPos": {
         "h": 5,
         "w": 2,
@@ -1818,7 +1771,7 @@
         "content": "1 : North\\\n0 : South",
         "mode": "markdown"
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "targets": [
         {
           "format": "time_series",
@@ -1849,8 +1802,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Latitude Dir Key",
       "type": "text"
     },
@@ -1859,7 +1810,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "postgres",
+        "uid": "${datasource}"
+      },
       "decimals": 0,
       "fieldConfig": {
         "defaults": {
@@ -1895,7 +1849,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "pointradius": 0.5,
       "points": true,
       "renderer": "flot",
@@ -1905,6 +1859,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${datasource}"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "num_sv_in_view",
@@ -1942,9 +1900,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Longitude Direction",
       "tooltip": {
         "shared": true,
@@ -1953,9 +1909,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -1967,7 +1921,6 @@
           "label": "",
           "logBase": 1,
           "max": "1",
-          "min": null,
           "show": true
         },
         {
@@ -1975,22 +1928,14 @@
           "format": "degree",
           "label": "longitude",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
       "gridPos": {
         "h": 5,
         "w": 2,
@@ -2002,7 +1947,7 @@
         "content": "1 : East\\\n0 : West",
         "mode": "markdown"
       },
-      "pluginVersion": "7.5.6",
+      "pluginVersion": "8.3.6",
       "targets": [
         {
           "format": "time_series",
@@ -2033,26 +1978,45 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Long Dir Key",
       "type": "text"
     }
   ],
   "refresh": false,
-  "schemaVersion": 27,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "PostgreSQL - NMEA",
+          "value": "PostgreSQL - NMEA"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data Source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "postgres",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
   },
   "time": {
-    "from": "2020-12-22T04:55:47.182Z",
-    "to": "2020-12-22T04:58:50.091Z"
+    "from": "now-2d",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "GN GGA - Global Positioning System Fixed Data",
   "uid": "px09Qb-Mk",
-  "version": 13
+  "version": 4,
+  "weekStart": ""
 }

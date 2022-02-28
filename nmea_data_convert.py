@@ -28,9 +28,9 @@ def parse_and_validate_args(passed_args):
                             help="file system path to file containing NMEA data")
     parser.add_argument("output_method",
                             choices=['csv', 'db', 'both'],
-                            help="where to output data: CSV files, database, or both")
+                            help="Where to output data: CSV files, database, or both")
     parser.add_argument("--cycle_start", "-cs",
-                            help="talker+sentence_type, e.g. 'GNRMC', used to key off of for sentence merging and more; "
+                            help="Talker+sentence_type, e.g. 'GNRMC', used to key off of for sentence merging and more; "
                                  "must appear once and only once in each cycle, and must be at the beginning of each cycle; "
                                  "must contain date and time information for sentences to be datetime stamped")
     parser.add_argument("--num_sentences_per_cycle", "-spc",  # Requirement for this is enforced in assign_cycle_ids()
@@ -40,11 +40,16 @@ def parse_and_validate_args(passed_args):
                                  "the same cycle_id starting with the first sentence. Sentence merging is based on cycle_id.")
     parser.add_argument("--backfill_datetimes", "-bfdt",
                             action="store_true",
-                            help="backfill datetimes where missing by extrapolating/interpolating from messages "
+                            help="Backfill datetimes where missing by extrapolating/interpolating from messages "
                                  "that do have datetime information")
     parser.add_argument("--drop_previous_db_tables", "-dropt",
                             action="store_true",
-                            help="drop all previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
+                            help="Drop all previous DB tables before importing new data; only applies when output_method is 'db' or 'both'")
+    parser.add_argument("--unique_id", "-uid",
+                            type=str,
+                            default=None,
+                            help="A unique ID that will be added as a column in all database tables and CSV output files;"
+                                 " allows this dataset to be distinguished from other datasets when they are stored together")
 
     args = parser.parse_args(passed_args)
 
@@ -298,6 +303,14 @@ def derive_data(sentence_dfs):
             df['latitude']  = df.apply(lambda row : get_coordinate(row['lat'], row['lat_dir'], 'lat'), axis = 1)
             df['longitude'] = df.apply(lambda row : get_coordinate(row['lon'], row['lon_dir'], 'lon'), axis = 1)
 
+        if df['sentence_type'][0] == 'GNS':
+
+            df['mode_indicator_gps']     = df.apply(lambda row : get_position_mode(row['mode_indicator'], 'GPS'    ), axis = 1)
+            df['mode_indicator_glonass'] = df.apply(lambda row : get_position_mode(row['mode_indicator'], 'GLONASS'), axis = 1)
+            df['mode_indicator_galileo'] = df.apply(lambda row : get_position_mode(row['mode_indicator'], 'Galileo'), axis = 1)
+            df['mode_indicator_beidou']  = df.apply(lambda row : get_position_mode(row['mode_indicator'], 'BeiDou' ), axis = 1)
+
+
 
 def get_coordinate(coord, coord_dir, coord_type):
 
@@ -320,6 +333,38 @@ def get_coordinate(coord, coord_dir, coord_type):
         coord = -coord
 
     return coord
+
+
+def get_position_mode(mode_indicator_str, constellation):
+
+    if constellation == 'GPS'    :
+            return mode_indicator_str[0]
+    
+    if constellation == 'GLONASS':
+        if len(mode_indicator_str) > 1:
+            return mode_indicator_str[1]
+        else:
+            return None
+    
+    if constellation == 'Galileo':
+        if len(mode_indicator_str) > 2:
+            return mode_indicator_str[2]
+        else:
+            return None
+    
+    if constellation == 'BeiDou' :
+        if len(mode_indicator_str) > 3:
+            return mode_indicator_str[3]
+        else:
+            return None
+
+
+def add_uid_to_dfs(sentence_dfs, unique_id):
+
+    for df in sentence_dfs:
+
+        # Insert the unique ID as the first column
+        df.insert(0, 'unique_id', unique_id)
 
 
 def sentences_to_dataframes(sentence_sets):
@@ -616,6 +661,7 @@ def main(passed_args=None):
     if args.backfill_datetimes:
         backfill_datetimes(sentence_dfs, verbose=True)
     derive_data(sentence_dfs)
+    add_uid_to_dfs(sentence_dfs, args.unique_id)
     print("done.")
     
     if (args.output_method == 'csv' or args.output_method == 'both'):
