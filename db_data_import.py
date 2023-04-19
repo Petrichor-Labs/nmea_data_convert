@@ -5,8 +5,9 @@ import psycopg2
 import sqlalchemy  # import create_engine
 import sqlalchemy.exc
 
-# Local modules/libary files:
+from column_casting import columns_to_cast, datatype_dict
 import db_creds
+import db_utils
 
 # 'fail', 'replace', or 'append', see https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
 IF_EXISTS_OPT = 'append'
@@ -26,6 +27,16 @@ def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_su
         table_name = table_name_base
         if table_name_suffixes:
             table_name = table_name + '_' + table_name_suffixes[df_idx]
+
+        # create column datatypes collection
+        columns: list[dict] = []
+        for keys, values in columns_to_cast.items():
+            for val in values:
+                if val in df.columns:
+                    columns.append({'name': val, 'datatype': str(datatype_dict[keys[1]])})
+
+        # create table in database for talker type in current dataframe
+        db_utils.create_table(table_name, columns)
 
         try:
             df.to_sql(table_name, engine, method='multi', if_exists=if_exists_opt_loc, index=False, dtype=dtypes)

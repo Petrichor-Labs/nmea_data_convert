@@ -1,5 +1,3 @@
-import sqlalchemy
-
 # Default database datatype for all non-derived data is text
 # This file specifies columns to cast and what the python and database datatypes should be is before importing to database
 
@@ -16,16 +14,22 @@ import sqlalchemy
 
 # Must contain (key, value) pair for all destination datatypes
 datatype_dict = {}
-datatype_dict['Int16']   = sqlalchemy.types.SmallInteger()
-datatype_dict['Int32']   = sqlalchemy.types.Integer()
-datatype_dict['float32'] = sqlalchemy.types.Float(precision=6)
-datatype_dict['text']    = sqlalchemy.types.Text()
-
+datatype_dict['Int16']   = 'smallint'
+datatype_dict['Int32']   = 'integer'
+datatype_dict['float32'] = 'decimal'
+datatype_dict['text']    = 'varchar(8)'
 
 # This db_datatypes dictionary is completed in dfs_to_db()
 db_datatypes = {}
-db_datatypes['cycle_id'] = sqlalchemy.types.Integer()
-
+db_datatypes['unique_id'] = 'varchar(32)'
+db_datatypes['cycle_id'] = 'integer'
+db_datatypes['talker'] = 'varchar(2)'
+db_datatypes['sentence_type'] = 'varchar(4)'
+db_datatypes['datetime'] = 'timestamp'
+db_datatypes['datetime_is_interpolated'] = 'boolean'
+db_datatypes['sentence_is_merged_from_multiple'] = 'boolean'
+db_datatypes['latitude'] = 'decimal'
+db_datatypes['longitude'] = 'decimal'
 
 columns_to_cast = {}
 
