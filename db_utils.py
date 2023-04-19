@@ -13,7 +13,7 @@ import db_creds
 print = functools.partial(print, flush=True)
 
 
-def drop_db_tables(tables_to_drop, verbose=False):
+def drop_db_tables(tables_to_drop: list[str], verbose=False):
     [psql_con, psql_cursor] = setup_db_connection()
 
     # Drop tables
@@ -33,7 +33,7 @@ def drop_db_tables(tables_to_drop, verbose=False):
     free_db_connection(psql_con, psql_cursor)
 
 
-def create_table(table_name, columns=None):
+def create_table(table_name: str, columns=None):
     db_command = f"CREATE TABLE IF NOT EXISTS \"{table_name}\" ("
 
     if columns:
@@ -48,7 +48,7 @@ def create_table(table_name, columns=None):
     run_db_command(db_command)
 
 
-def run_db_command(db_command):
+def run_db_command(db_command: str):
     [psql_con, psql_cursor] = setup_db_connection()
 
     # Run command on database  
@@ -65,7 +65,7 @@ def setup_db_connection():
 
     # Start a PostgreSQL database session
     try:
-        psql_con = psycopg2.connect(db_access_str);
+        psql_con = psycopg2.connect(db_access_str)
     except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as ex:
         # Print error text bold and red
         sys.exit(f"\n\033[1m\033[91mERROR connecting to database:\n  {ex}\033[0m\n\nExiting.\n\n")
