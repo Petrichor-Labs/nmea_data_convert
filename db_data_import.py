@@ -1,7 +1,9 @@
 import sys
 
+import pandas as pd
 import psycopg2
 import sqlalchemy  # import create_engine
+import sqlalchemy.exc
 
 # Local modules/libary files:
 import db_creds
@@ -10,7 +12,7 @@ import db_creds
 IF_EXISTS_OPT = 'append'
 
 
-def send_data_to_db(dfs, table_name_base, table_name_suffixes=None, dtypes=None):
+def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
     db_access_str = f'postgresql://{db_creds.DB_USER}:{db_creds.DB_PASSWORD}@{db_creds.DB_HOST}:{db_creds.DB_PORT}/{db_creds.DB_NAME}'
     engine = sqlalchemy.create_engine(db_access_str)
 

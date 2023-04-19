@@ -13,7 +13,7 @@ import db_creds
 print = functools.partial(print, flush=True)
 
 
-def drop_db_tables(tables_to_drop, verbose=False):
+def drop_db_tables(tables_to_drop: list[str], verbose=False):
     [psql_con, psql_cursor] = setup_db_connection()
 
     # Drop tables
@@ -33,7 +33,7 @@ def drop_db_tables(tables_to_drop, verbose=False):
     free_db_connection(psql_con, psql_cursor)
 
 
-def create_table(table_name, columns=None):
+def create_table(table_name: str, columns=None):
     db_command = f"CREATE TABLE IF NOT EXISTS \"{table_name}\" ("
 
     if columns:
@@ -48,7 +48,7 @@ def create_table(table_name, columns=None):
     run_db_command(db_command)
 
 
-def run_db_command(db_command):
+def run_db_command(db_command: str):
     [psql_con, psql_cursor] = setup_db_connection()
 
     # Run command on database    

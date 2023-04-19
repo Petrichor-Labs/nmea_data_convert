@@ -181,15 +181,15 @@ def read_file(file):
     return sentences
 
 
-def categorize_sentences(sentences):
+def categorize_sentences(sentences: list[DateTimeStampedSentence]):
     # Make a list of all sentence types
-    sentence_types = []
+    sentence_types: list[str] = []
     for dts_sentence in sentences:
         if get_sentence_type(dts_sentence.sentence) not in sentence_types:
             sentence_types.append(get_sentence_type(dts_sentence.sentence))
 
     # Create a list of sentence sets (a separate list for each sentence type)
-    sentence_sets = [[] for _ in range(len(sentence_types))]
+    sentence_sets: list[list[DateTimeStampedSentence]] = [[] for _ in range(len(sentence_types))]
     for dts_sentence in sentences:
         type_idx = sentence_types.index(get_sentence_type(dts_sentence.sentence))
         # Add each sentence to the appropriate list
@@ -202,8 +202,8 @@ def categorize_sentences(sentences):
 #   pair that timestamp with each sentence from the cycle
 # This function assumes that the sentence that starts the cycle contains a date and time stamp
 #   which may only be true for RMC sentences
-def datetime_stamp_sentences(sentences, cycle_start='GNRMC'):
-    datetime_stamped_sentences = []
+def datetime_stamp_sentences(sentences: list, cycle_start='GNRMC'):
+    datetime_stamped_sentences: list[DateTimeStampedSentence] = []
 
     date_time = None
 
@@ -234,7 +234,7 @@ def datetime_stamp_sentences(sentences, cycle_start='GNRMC'):
 
 
 # To properly assign cycle IDs, the cycle_start talker+sentence_type must appear once and only once in each cycle
-def assign_cycle_ids(dts_sentences, args):
+def assign_cycle_ids(dts_sentences: list[DateTimeStampedSentence], args: argparse.Namespace):
     # TODO: Check database for highest cycle_id and start there so that IDs will be unique across runs of this script
 
     cycle_start = args.cycle_start
@@ -275,7 +275,7 @@ def assign_cycle_ids(dts_sentences, args):
 
 # For sentences from a particular sentence_set (particular talker), if there are sentences of the same sentence_type
 #   from the same cycle, merge them into one sentence
-def merge_groups(sentence_sets):
+def merge_groups(sentence_sets: list[list[DateTimeStampedSentence]]):
     for set_idx, sentence_set in enumerate(sentence_sets):
         sentence_type = sentence_set[0].sentence.sentence_type
 
@@ -313,7 +313,7 @@ def merge_groups(sentence_sets):
 # Look at the first two consecutive cycles with datetimes, take the interval between them, and backfill datetimes
 #   to cycles without datetimes based on that interval, assuming no data interruptions
 # The interval from the first talker+sentence_type dataframe will be used for all dataframes
-def backfill_datetimes(sentence_dfs, verbose=False):
+def backfill_datetimes(sentence_dfs: list[pd.DataFrame], verbose=False):
     # Make sure sentences are in order by cycle, they may have gotten out of order when merged
     sentence_dfs = sort_dfs(sentence_dfs, sort_by='cycle_id')
 
@@ -381,7 +381,7 @@ def backfill_datetimes(sentence_dfs, verbose=False):
 
 
 # Derive custom data from NMEA data
-def derive_data(sentence_dfs):
+def derive_data(sentence_dfs: list[pd.DataFrame]):
     for df in sentence_dfs:
         if df['sentence_type'][0] == 'RMC':
             # Derive decimal degree lat/lon format from NMEA DDMM.MMMMM/DDDMM.MMMMM formats
@@ -395,8 +395,7 @@ def derive_data(sentence_dfs):
             df['mode_indicator_beidou'] = df.apply(lambda row: get_position_mode(row['mode_indicator'], 'BeiDou'), axis=1)
 
 
-
-def get_coordinate(coord, coord_dir, coord_type):
+def get_coordinate(coord: str, coord_dir: str, coord_type: str):
     # 'lat' is in  DDMM.MMMMM format, number of decimal places is variable
     # 'lon' is in DDDMM.MMMMM format, number of decimal places is variable
 
@@ -411,46 +410,42 @@ def get_coordinate(coord, coord_dir, coord_type):
         degree = float(coord[:3])
         minute = float(coord[3:])
 
-    coord = degree + minute / 60
+    coord_f = degree + minute / 60
 
     if (coord_dir == 'S' or coord_dir == 'W'):
-        coord = -coord
+        coord_f = -coord_f
 
-    return coord
+    return coord_f
 
 
-def get_position_mode(mode_indicator_str, constellation):
+def get_position_mode(mode_indicator: str, constellation: str):
 
     if constellation == 'GPS':
-        return mode_indicator_str[0]
+        return mode_indicator[0]
 
     if constellation == 'GLONASS':
-        if len(mode_indicator_str) > 1:
-            return mode_indicator_str[1]
-        else:
-            return None
+        if len(mode_indicator) > 1:
+            return mode_indicator[1]
 
     if constellation == 'Galileo':
-        if len(mode_indicator_str) > 2:
-            return mode_indicator_str[2]
-        else:
-            return None
+        if len(mode_indicator) > 2:
+            return mode_indicator[2]
 
     if constellation == 'BeiDou':
-        if len(mode_indicator_str) > 3:
-            return mode_indicator_str[3]
-        else:
-            return None
+        if len(mode_indicator) > 3:
+            return mode_indicator[3]
+
+    return '?'
 
 
-def add_uid_to_dfs(sentence_dfs, unique_id):
+def add_uid_to_dfs(sentence_dfs: list[pd.DataFrame], unique_id):
     for df in sentence_dfs:
         # Insert the unique ID as the first column
         df.insert(0, 'unique_id', unique_id)
 
 
-def sentences_to_dataframes(sentence_sets):
-    dfs = []
+def sentences_to_dataframes(sentence_sets: list[list[DateTimeStampedSentence]]):
+    dfs: list[pd.DataFrame] = []
 
     for set_idx, sentence_set in enumerate(sentence_sets):
         sentence_type = sentence_sets[set_idx][0].sentence.sentence_type
@@ -481,7 +476,7 @@ def sentences_to_dataframes(sentence_sets):
         list_of_data_rows = []
 
         for dts_sentence in sentence_set:
-            row_data = dts_sentence.sentence.data.copy()
+            row_data: list = dts_sentence.sentence.data.copy()
 
             date_time = dts_sentence.date_time
             row_data.insert(0, dts_sentence.cycle_id)
@@ -530,7 +525,7 @@ def sentences_to_dataframes(sentence_sets):
     return dfs
 
 
-def sort_dfs(dfs, sort_by='cycle_id', ascending=True):
+def sort_dfs(dfs: list[pd.DataFrame], sort_by='cycle_id', ascending=True):
     for df_idx, _ in enumerate(dfs):
         dfs[df_idx] = dfs[df_idx].sort_values(sort_by, ascending=ascending)
         dfs[df_idx] = dfs[df_idx].reset_index(drop=True)
@@ -538,7 +533,7 @@ def sort_dfs(dfs, sort_by='cycle_id', ascending=True):
     return dfs
 
 
-def correct_data_types(df):
+def correct_data_types(df: pd.DataFrame):
     # Do this replace first because pd.Nat won't be replaced with np.NaN
     df.replace(to_replace=pd.NaT, value='', inplace=True)
     df.replace(to_replace='', value=np.NaN, inplace=True)
@@ -553,12 +548,12 @@ def correct_data_types(df):
     #             # Cast as float first to get around bug: https://stackoverflow.com/questions/60024262/error-converting-object-string-to-int32-typeerror-object-cannot-be-converted
 
     # Needed for backfill_datetimes() to work properly
-    df['datetime'].replace(to_replace=np.NaN, value=pd.NaT, inplace=True)
+    df['datetime'].replace(to_replace=np.NaN, value=pd.NaT, inplace=True)  # type: ignore
 
     return df
 
 
-def dfs_to_csv(sentence_dfs, input_file_path, verbose=False):
+def dfs_to_csv(sentence_dfs: list[pd.DataFrame], input_file_path, verbose=False):
     input_file_name = os.path.basename(input_file_path)
     input_file_name = os.path.splitext(input_file_name)[0]
 
@@ -573,7 +568,7 @@ def dfs_to_csv(sentence_dfs, input_file_path, verbose=False):
             print("  " + filename)
 
 
-def dfs_to_db(sentence_dfs, input_file_path, verbose=False):
+def dfs_to_db(sentence_dfs: list[pd.DataFrame], input_file_path, verbose=False):
     table_name_base = 'nmea'
 
     # Pass lowercase 'talker_sentencetype' as table name suffixes
@@ -597,48 +592,48 @@ def dfs_to_db(sentence_dfs, input_file_path, verbose=False):
             print(f"  '{table_name}' table in '{db_creds.DB_NAME}' database")
 
 
-def get_sentence_type(sentence):
+def get_sentence_type(sentence) -> str:
     return sentence.talker + sentence.sentence_type
 
 
 # Add fields for SVs 5-16. See the Development Notes/Oddities section of README.md
-def expand_GSV_fields(fields):
+def expand_GSV_fields(fields: tuple[tuple[str, str]]):
     # Make mutable
-    fields = list(fields)
+    fields_ = list(fields)
 
     # Original GSV sentence supports 0-4 SVs, so copy and change fields for SV 4
-    fields_to_duplicate = [field for field in fields if field[0].endswith('4')]
+    fields_to_duplicate = [field for field in fields_ if field[0].endswith('4')]
 
     for SV_idx in range(5, 16 + 1):
         new_fields = [(re.sub(r'4$', str(SV_idx), field[0]), re.sub(r'4$', str(SV_idx), field[1])) for field in fields_to_duplicate]
-        fields = fields + new_fields
+        fields_ = fields_ + new_fields
 
     # Return to original immutable tuple state
-    fields = tuple(fields)
+    fields = tuple(fields_)
 
     return fields
 
 
 # Create additional sv_id01...sv_id12 fields for second constellation, and label prefix with 'gp' for GPS and 'gl' for GLONASS
-def expand_GSA_fields(fields):
+def expand_GSA_fields(fields: tuple[tuple[str, str]]):
     # Make mutable
-    fields = list(fields)
+    fields_ = list(fields)
 
-    fields_to_duplicate = [field for field in fields if field[1].startswith('sv_id')]
+    fields_to_duplicate = [field for field in fields_ if field[1].startswith('sv_id')]
     gp_fields = [('GP ' + field[0], 'gp_' + field[1]) for field in fields_to_duplicate]
     gl_fields = [('GL ' + field[0], 'gl_' + field[1]) for field in fields_to_duplicate]
 
     # Keep first two fields and last three fields, replacing what is in between
-    fields = fields[:2] + gp_fields + gl_fields + fields[-3:]
+    fields_ = fields_[:2] + gp_fields + gl_fields + fields_[-3:]
 
     # Return to original immutable tuple state
-    fields = tuple(fields)
+    fields = tuple(fields_)
 
     return fields
 
 
 # Do data processing that we will always want to do
-def process_data_common(sentences, args):
+def process_data_common(sentences: list, args: argparse.Namespace):
     dts_sentences = datetime_stamp_sentences(sentences, args.cycle_start)
     # 'dts' -> 'datetime stamped'
     dts_sentences = assign_cycle_ids(dts_sentences, args)
