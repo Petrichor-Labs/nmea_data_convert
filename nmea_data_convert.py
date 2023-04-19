@@ -20,6 +20,101 @@ import db_utils
 print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
 
 
+class DateTimeStampedSentence:
+
+    def __init__(self, sentence, date_time):
+
+        # TODO: Check if inputs are of correct types (use isinstance())
+        # https://stackoverflow.com/questions/14570802/python-check-if-object-is-instance-of-any-class-from-a-certain-module
+
+        self.cycle_id = None
+        self.sentence = sentence  # 'sentence' is an instance of class from pynmea2, contains various attributes
+        self.date_time = date_time
+        self.datetime_is_interpolated = False
+        self.sentence_is_merged_from_multiple = False
+
+    def __str__(self):
+
+        return str(self.cycle_id) + ' ' + str(self.sentence) + ' ' + str(self.date_time)
+
+
+class MergedSentence_GSV:
+    #TODO: Have MergedSentence_GSV inherit from DateTimeStampedSentence, or create new base MergedSentence class to inherit from ?
+    
+    def __init__(self, merge_group):
+        
+        self.cycle_id = merge_group[0].cycle_id
+        self.date_time = merge_group[0].date_time
+        self.datetime_is_interpolated = False
+        self.sentence_is_merged_from_multiple = True
+
+        Sentence = namedtuple('sentence', 'talker sentence_type fields data')
+        
+        talker        = merge_group[0].sentence.talker
+        sentence_type = merge_group[0].sentence.sentence_type
+
+        # Add fields for SVs 5-12. 12 SVs seems to be a common number of maximum supported SVs for GNSS devices
+        fields = expand_GSV_fields(merge_group[0].sentence.fields)        
+
+        # Merge SV data from sentences after the first with the data from the first sentences
+        data = merge_group[0].sentence.data
+        data[1] = np.NaN  # msg_num doesn't apply to merged sentence
+        for dts_sentence in merge_group[1:]:
+            data = data + dts_sentence.sentence.data[3:]
+
+        self.sentence = Sentence(talker, sentence_type, fields, data)
+
+    def __str__(self):
+
+        return str(self.cycle_id) + ' ' + str(self.sentence.talker) + ' ' + str(self.sentence.sentence_type) + ' ' + str(self.sentence.data) + ' ' + str(self.date_time)
+
+
+class MergedSentence_GSA:
+    # TODO: Have MergedSentence_GSA inherit from DateTimeStampedSentence, or create new base MergedSentence class to inherit from ?
+
+    # Separate GSA sentences in the same cycle represent reporting for different constellations
+    # SV with IDs 1-32 are GPS, 65-96 are GLONASS.
+    # See https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29.pdf, Appendix A
+
+    # TODO: Support more than two GSA sentences per cycle, if necessary
+    
+    def __init__(self, merge_group):
+        
+        if len(merge_group) != 2:
+            raise Exception("Merging of two and only two GSA sentences per cycle is currently supported.")
+
+        self.cycle_id = merge_group[0].cycle_id
+        self.date_time = merge_group[0].date_time
+        self.datetime_is_interpolated = False
+        self.sentence_is_merged_from_multiple = True
+
+        Sentence = namedtuple('sentence', 'talker sentence_type fields data')
+        
+        talker        = merge_group[0].sentence.talker
+        sentence_type = merge_group[0].sentence.sentence_type
+
+        # Create additional sv_id01...sv_id12 fields for second constellation, and label prefix with 'gp' for GPS and 'gl' for GLONASS
+        # Other data is the same between sentences (as observed in limited data)
+        fields = expand_GSA_fields(merge_group[0].sentence.fields)
+
+        # Constellation reporting may not always be in the same order, e.g. GPS may be reported before GLONASS in some
+        #   cycles and after GLONASS in others, so check values and determine which should go first
+        sentence1_sv_ids = [int(id_) for id_ in merge_group[0].sentence.data[2:14] if id_ != '']
+
+        glonass_ids = range(65,96+1)
+        if len(set(sentence1_sv_ids) & set(glonass_ids)):  # If there are GLONASS SV IDs in the first sentence, switch them
+            merge_group = [merge_group[1], merge_group[0]]
+
+        # Merge data from sentences
+        data = merge_group[0].sentence.data[:-3] + merge_group[1].sentence.data[2:]
+
+        self.sentence = Sentence(talker, sentence_type, fields, data)
+
+    def __str__(self):
+
+        return str(self.cycle_id) + ' ' + str(self.sentence.talker) + ' ' + str(self.sentence.sentence_type) + ' ' + str(self.sentence.data) + ' ' + str(self.date_time)
+
+
 def parse_and_validate_args(passed_args):
 
     parser = argparse.ArgumentParser()
@@ -510,101 +605,6 @@ def dfs_to_db(sentence_dfs, input_file_path, verbose=False):
 def get_sentence_type(sentence):
 
     return sentence.talker + sentence.sentence_type
-
-
-class DateTimeStampedSentence:
-
-    def __init__(self, sentence, date_time):
-
-        # TODO: Check if inputs are of correct types (use isinstance())
-        # https://stackoverflow.com/questions/14570802/python-check-if-object-is-instance-of-any-class-from-a-certain-module
-
-        self.cycle_id = None
-        self.sentence = sentence  # 'sentence' is an instance of class from pynmea2, contains various attributes
-        self.date_time = date_time
-        self.datetime_is_interpolated = False
-        self.sentence_is_merged_from_multiple = False
-
-    def __str__(self):
-
-        return str(self.cycle_id) + ' ' + str(self.sentence) + ' ' + str(self.date_time)
-
-
-class MergedSentence_GSV:
-    #TODO: Have MergedSentence_GSV inherit from DateTimeStampedSentence, or create new base MergedSentence class to inherit from ?
-    
-    def __init__(self, merge_group):
-        
-        self.cycle_id = merge_group[0].cycle_id
-        self.date_time = merge_group[0].date_time
-        self.datetime_is_interpolated = False
-        self.sentence_is_merged_from_multiple = True
-
-        Sentence = namedtuple('sentence', 'talker sentence_type fields data')
-        
-        talker        = merge_group[0].sentence.talker
-        sentence_type = merge_group[0].sentence.sentence_type
-
-        # Add fields for SVs 5-12. 12 SVs seems to be a common number of maximum supported SVs for GNSS devices
-        fields = expand_GSV_fields(merge_group[0].sentence.fields)        
-
-        # Merge SV data from sentences after the first with the data from the first sentences
-        data = merge_group[0].sentence.data
-        data[1] = np.NaN  # msg_num doesn't apply to merged sentence
-        for dts_sentence in merge_group[1:]:
-            data = data + dts_sentence.sentence.data[3:]
-
-        self.sentence = Sentence(talker, sentence_type, fields, data)
-
-    def __str__(self):
-
-        return str(self.cycle_id) + ' ' + str(self.sentence.talker) + ' ' + str(self.sentence.sentence_type) + ' ' + str(self.sentence.data) + ' ' + str(self.date_time)
-
-
-class MergedSentence_GSA:
-    # TODO: Have MergedSentence_GSA inherit from DateTimeStampedSentence, or create new base MergedSentence class to inherit from ?
-
-    # Separate GSA sentences in the same cycle represent reporting for different constellations
-    # SV with IDs 1-32 are GPS, 65-96 are GLONASS.
-    # See https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29.pdf, Appendix A
-
-    # TODO: Support more than two GSA sentences per cycle, if necessary
-    
-    def __init__(self, merge_group):
-        
-        if len(merge_group) != 2:
-            raise Exception("Merging of two and only two GSA sentences per cycle is currently supported.")
-
-        self.cycle_id = merge_group[0].cycle_id
-        self.date_time = merge_group[0].date_time
-        self.datetime_is_interpolated = False
-        self.sentence_is_merged_from_multiple = True
-
-        Sentence = namedtuple('sentence', 'talker sentence_type fields data')
-        
-        talker        = merge_group[0].sentence.talker
-        sentence_type = merge_group[0].sentence.sentence_type
-
-        # Create additional sv_id01...sv_id12 fields for second constellation, and label prefix with 'gp' for GPS and 'gl' for GLONASS
-        # Other data is the same between sentences (as observed in limited data)
-        fields = expand_GSA_fields(merge_group[0].sentence.fields)
-
-        # Constellation reporting may not always be in the same order, e.g. GPS may be reported before GLONASS in some
-        #   cycles and after GLONASS in others, so check values and determine which should go first
-        sentence1_sv_ids = [int(id_) for id_ in merge_group[0].sentence.data[2:14] if id_ != '']
-
-        glonass_ids = range(65,96+1)
-        if len(set(sentence1_sv_ids) & set(glonass_ids)):  # If there are GLONASS SV IDs in the first sentence, switch them
-            merge_group = [merge_group[1], merge_group[0]]
-
-        # Merge data from sentences
-        data = merge_group[0].sentence.data[:-3] + merge_group[1].sentence.data[2:]
-
-        self.sentence = Sentence(talker, sentence_type, fields, data)
-
-    def __str__(self):
-
-        return str(self.cycle_id) + ' ' + str(self.sentence.talker) + ' ' + str(self.sentence.sentence_type) + ' ' + str(self.sentence.data) + ' ' + str(self.date_time)
 
 
 # Add fields for SVs 5-16. See the Development Notes/Oddities section of README.md
