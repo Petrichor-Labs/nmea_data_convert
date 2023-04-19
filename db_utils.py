@@ -1,4 +1,7 @@
+# TODO: Overriding the print function isn't a good way to handle this, replace with a custom library that does this
+import functools
 import sys
+
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import sqlalchemy
@@ -7,8 +10,6 @@ import sqlalchemy
 import db_creds
 import db_table_lists
 
-# TODO: Overriding the print function isn't a good way to handle this, replace with a custom library that does this
-import functools
 print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
 
 

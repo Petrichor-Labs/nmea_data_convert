@@ -3,8 +3,9 @@ IF_EXISTS_OPT = 'append'  # 'fail', 'replace', or 'append', see https://pandas.p
 
 import os
 import sys
-import sqlalchemy #import create_engine
+
 import psycopg2
+import sqlalchemy  # import create_engine
 
 # Local modules/libary files:
 import db_creds

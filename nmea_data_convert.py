@@ -1,22 +1,22 @@
 import argparse
+from collections import namedtuple
+from datetime import datetime
+# TODO: Overriding the print function isn't a good way to handle this, replace with a custom library that does this
+import functools
 import os
 import re
 import sys
-from collections import namedtuple
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import pynmea2
 
+from column_casting import columns_to_cast, datatype_dict, db_datatypes
 import db_creds
 import db_data_import
 import db_table_lists
 import db_utils
-from column_casting import columns_to_cast, datatype_dict, db_datatypes
 
-# TODO: Overriding the print function isn't a good way to handle this, replace with a custom library that does this
-import functools
 print = functools.partial(print, flush=True)  # Prevent print statements from buffering till end of execution
 
 
