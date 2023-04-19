@@ -86,7 +86,7 @@ class MergedSentence_GSA(DateTimeStampedSentence):
         talker = merge_group[0].sentence.talker
         sentence_type = merge_group[0].sentence.sentence_type
 
-        # Create additional sv_id01...sv_id12 fields for second constellation, and label prefix with 'gp' for GPS and 'gl' for GLONASS
+        # Create additional sv_id01...sv_id12 fields for other constellations, and label prefix with 'gp' for GPS, 'gl' for GLONASS and 'ga' for Galileo
         # Other data is the same between sentences (as observed in limited data)
         fields = expand_GSA_fields(merge_group[0].sentence.fields)
 
@@ -250,8 +250,8 @@ def assign_cycle_ids(dts_sentences: list[DateTimeStampedSentence], args: argpars
                 cycle_id += 1
             dts_sentences[sen_idx].cycle_id = cycle_id
 
-    # If sentences are exclusively 'GPGSV' xor 'GLGSV' sentences
-    elif (len(unique_talker_and_type_pairs) == 1 and (('GPGSV' in unique_talker_and_type_pairs) or ('GLGSV' in unique_talker_and_type_pairs))):
+    # If sentences are exclusively 'GPGSV' xor 'GLGSV' xor 'GAGSV' sentences
+    elif (len(unique_talker_and_type_pairs) == 1 and (('GPGSV' in unique_talker_and_type_pairs) or ('GLGSV' in unique_talker_and_type_pairs) or ('GAGSV' in unique_talker_and_type_pairs))):
         cycle_id = -1
         for sen_idx, dts_sentence in enumerate(dts_sentences):
             if int(dts_sentence.sentence.msg_num) == 1:
@@ -262,7 +262,7 @@ def assign_cycle_ids(dts_sentences: list[DateTimeStampedSentence], args: argpars
         num_sentences_per_cycle = args.num_sentences_per_cycle
         if num_sentences_per_cycle is None:
             sys.exit("\n\nERROR: If an argument for cycle_start is not provided or is not valid, and sentences are not exclusively "
-                     "GPGSV xor GLGSV sentences, then the num_sentences_per_cycle argument must be provided.\n\nExiting.\n")
+                     "GPGSVV xor GLGSV xor GAGS sentences, then the num_sentences_per_cycle argument must be provided.\n\nExiting.\n")
         cycle_id = -1
         cycle_start_idxs = range(0, len(dts_sentences), num_sentences_per_cycle)
         for sen_idx, dts_sentence in enumerate(dts_sentences):
@@ -383,11 +383,6 @@ def backfill_datetimes(sentence_dfs: list[pd.DataFrame], verbose=False):
 # Derive custom data from NMEA data
 def derive_data(sentence_dfs: list[pd.DataFrame]):
     for df in sentence_dfs:
-        if df['sentence_type'][0] == 'RMC':
-            # Derive decimal degree lat/lon format from NMEA DDMM.MMMMM/DDDMM.MMMMM formats
-            df['latitude'] = df.apply(lambda row: get_coordinate(row['lat'], row['lat_dir'], 'lat'), axis=1)
-            df['longitude'] = df.apply(lambda row: get_coordinate(row['lon'], row['lon_dir'], 'lon'), axis=1)
-
         if df['sentence_type'][0] == 'GNS':
             df['mode_indicator_gps'] = df.apply(lambda row: get_position_mode(row['mode_indicator'], 'GPS'), axis=1)
             df['mode_indicator_glonass'] = df.apply(lambda row: get_position_mode(row['mode_indicator'], 'GLONASS'), axis=1)
@@ -466,6 +461,12 @@ def sentences_to_dataframes(sentence_sets: list[list[DateTimeStampedSentence]]):
         if sentence_type == 'RMC':
             columns.append('mode')
 
+        # Add columns for latitude and longitude if type is RMC or GGA, because these pynmea2
+        #   sentence objects have parameters containing the calculated values already
+        if sentence_type in ['RMC', 'GGA']:
+            columns.append('latitude')
+            columns.append('longitude')
+
         columns.insert(0, 'cycle_id')
         columns.insert(1, 'datetime')
         columns.insert(2, 'datetime_is_interpolated')
@@ -508,6 +509,15 @@ def sentences_to_dataframes(sentence_sets: list[list[DateTimeStampedSentence]]):
                     row_data = row_data[:-15] + placeholders + row_data[-15:]
                 else:
                     row_data = row_data[:-3] + placeholders + row_data[-3:]
+
+            # For RMC and GGA sentences with less data than others, fill with NaNs where there is no data
+            # Also add the already calculated latitude and longitude
+            if sentence_type in ['RMC', 'GGA']:
+                placeholders = [np.NaN] * (len(columns) - len(row_data))
+                row_data = row_data + placeholders
+
+                # set latitude and longitude
+                row_data = row_data[:-2] + [dts_sentence.sentence.latitude, dts_sentence.sentence.longitude]
 
             list_of_data_rows.append(row_data)
 
@@ -614,7 +624,7 @@ def expand_GSV_fields(fields: tuple[tuple[str, str]]):
     return fields
 
 
-# Create additional sv_id01...sv_id12 fields for second constellation, and label prefix with 'gp' for GPS and 'gl' for GLONASS
+# Create additional sv_id01...sv_id12 fields for second constellation, and label prefix with 'gp' for GPS, 'gl' for GLONASS and 'ga' for Galileo
 def expand_GSA_fields(fields: tuple[tuple[str, str]]):
     # Make mutable
     fields_ = list(fields)
@@ -622,9 +632,10 @@ def expand_GSA_fields(fields: tuple[tuple[str, str]]):
     fields_to_duplicate = [field for field in fields_ if field[1].startswith('sv_id')]
     gp_fields = [('GP ' + field[0], 'gp_' + field[1]) for field in fields_to_duplicate]
     gl_fields = [('GL ' + field[0], 'gl_' + field[1]) for field in fields_to_duplicate]
+    ga_fields = [('GA ' + field[0], 'ga_' + field[1]) for field in fields_to_duplicate]
 
     # Keep first two fields and last three fields, replacing what is in between
-    fields_ = fields_[:2] + gp_fields + gl_fields + fields_[-3:]
+    fields_ = fields_[:2] + gp_fields + gl_fields + ga_fields + fields_[-3:]
 
     # Return to original immutable tuple state
     fields = tuple(fields_)
