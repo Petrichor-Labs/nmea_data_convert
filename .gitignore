@@ -3,3 +3,5 @@ Icon?
 __pycache__
 *.csv
 desktop.ini
+.venv/
+.vscode/
