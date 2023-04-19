@@ -1,6 +1,5 @@
 import sqlalchemy
 
-
 # Default database datatype for all non-derived data is text
 # This file specifies columns to cast and what the python and database datatypes should be is before importing to database
 
@@ -15,8 +14,8 @@ import sqlalchemy
 
 # Database datatypes reference: https://www.tutorialspoint.com/postgresql/postgresql_data_types.htm
 
-
-datatype_dict = {}  # Must contain (key, value) pair for all destination datatypes
+# Must contain (key, value) pair for all destination datatypes
+datatype_dict = {}
 datatype_dict['Int16']   = sqlalchemy.types.SmallInteger()
 datatype_dict['Int32']   = sqlalchemy.types.Integer()
 datatype_dict['float32'] = sqlalchemy.types.Float(precision=6)
@@ -46,7 +45,7 @@ columns_to_cast['GSV', 'Int16'] = ['num_messages', 'msg_num', 'num_sv_in_view',
                                    'sv_prn_num_13', 'elevation_deg_13', 'azimuth_13', 'snr_13',
                                    'sv_prn_num_14', 'elevation_deg_14', 'azimuth_14', 'snr_14',
                                    'sv_prn_num_15', 'elevation_deg_15', 'azimuth_15', 'snr_15',
-                                   'sv_prn_num_16', 'elevation_deg_16', 'azimuth_16', 'snr_16',]
+                                   'sv_prn_num_16', 'elevation_deg_16', 'azimuth_16', 'snr_16']
 
 columns_to_cast['RMC', 'Int32']   = ['datestamp']
 columns_to_cast['RMC', 'float32'] = ['timestamp', 'lat', 'lon', 'spd_over_grnd', 'true_course', 'mag_variation']
@@ -68,7 +67,7 @@ columns_to_cast['GSA', 'Int16']   = ['mode_fix_type', 'gp_sv_id01', 'gp_sv_id02'
                                                       'gp_sv_id09', 'gp_sv_id10', 'gp_sv_id11', 'gp_sv_id12',
                                                       'gl_sv_id01', 'gl_sv_id02', 'gl_sv_id03', 'gl_sv_id04',
                                                       'gl_sv_id05', 'gl_sv_id06', 'gl_sv_id07', 'gl_sv_id08',
-                                                      'gl_sv_id09', 'gl_sv_id10', 'gl_sv_id11', 'gl_sv_id12',]
+                                                      'gl_sv_id09', 'gl_sv_id10', 'gl_sv_id11', 'gl_sv_id12']
 columns_to_cast['GSA', 'float32'] = ['pdop', 'hdop', 'vdop']
 columns_to_cast['GSA', 'text']    = ['mode']
 
