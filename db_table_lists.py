@@ -1,4 +1,4 @@
-nmea_tables = [
+NMEA_TABLES = [
     'nmea_gl_gsv',
     'nmea_gn_gga',
     'nmea_gn_gll',

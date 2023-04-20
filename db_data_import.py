@@ -6,15 +6,15 @@ import sqlalchemy  # import create_engine
 import sqlalchemy.exc
 
 from column_casting import columns_to_cast, datatype_dict
-import db_creds
-import db_utils
+from db_creds import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from db_utils import create_table, run_db_command
 
 # 'fail', 'replace', or 'append', see https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
 IF_EXISTS_OPT = 'append'
 
 
 # uses psycopg2.connection.cursor.execute()
-def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
+def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
     table_names = []
 
     # Put data in database
@@ -32,7 +32,7 @@ def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_s
 
         # Create table in database for talker type in current dataframe
         try:
-            db_utils.create_table(table_name, columns)
+            create_table(table_name, columns)
         except psycopg2.OperationalError as ex:
             # Print error text bold and red
             sys.exit(f"\n\n\033[1m\033[91mERROR creating database tables:\n  {ex}\033[0m\n\nExiting.\n\n")
@@ -58,7 +58,7 @@ def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_s
 
         # Write current dataframe to database table for talker of this dataframe
         try:
-            db_utils.run_db_command(db_command, tuple(values))
+            run_db_command(db_command, tuple(values))
         except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as ex:
             # Print error text bold and red
             sys.exit(f"\n\n\033[1m\033[91mERROR writing to database:\n  {ex}\033[0m\n\nExiting.\n\n")
@@ -69,8 +69,8 @@ def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_s
 
 
 # uses pandas.DataFrame.to_sql()
-def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
-    db_access_str = f'postgresql://{db_creds.DB_USER}:{db_creds.DB_PASSWORD}@{db_creds.DB_HOST}:{db_creds.DB_PORT}/{db_creds.DB_NAME}'
+def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
+    db_access_str = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     engine = sqlalchemy.create_engine(db_access_str)
 
     table_names = []

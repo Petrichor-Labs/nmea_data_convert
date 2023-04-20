@@ -6,8 +6,7 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import sqlalchemy.exc
 
-# Local modules/libary files:
-import db_creds
+from db_creds import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
 # Prevent print statements from buffering till end of execution
 print = functools.partial(print, flush=True)
@@ -61,7 +60,7 @@ def run_db_command(db_command: str, vars=None):
 
 
 def setup_db_connection():
-    db_access_str = f"postgresql://{db_creds.DB_USER}:{db_creds.DB_PASSWORD}@{db_creds.DB_HOST}:{db_creds.DB_PORT}/{db_creds.DB_NAME}"
+    db_access_str = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
     # Start a PostgreSQL database session
     try:
