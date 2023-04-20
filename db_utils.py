@@ -48,11 +48,11 @@ def create_table(table_name: str, columns=None):
     run_db_command(db_command)
 
 
-def run_db_command(db_command: str):
+def run_db_command(db_command: str, vars=None):
     [psql_con, psql_cursor] = setup_db_connection()
 
-    # Run command on database  
-    psql_cursor.execute(db_command)
+    # Run command on database
+    psql_cursor.execute(db_command, vars)
 
     # print(psql_con.notices)
     # print(psql_con.notifies)

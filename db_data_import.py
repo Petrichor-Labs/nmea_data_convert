@@ -24,12 +24,44 @@ def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_s
             table_name = table_name + '_' + table_name_suffixes[df_idx]
 
         # Create column datatypes collection
+        columns: list[dict] = []
+        for keys, values in columns_to_cast.items():
+            for val in values:
+                if val in df.columns:
+                    columns.append({'name': val, 'datatype': str(datatype_dict[keys[1]])})
 
         # Create table in database for talker type in current dataframe
+        try:
+            db_utils.create_table(table_name, columns)
+        except psycopg2.OperationalError as ex:
+            # Print error text bold and red
+            sys.exit(f"\n\n\033[1m\033[91mERROR creating database tables:\n  {ex}\033[0m\n\nExiting.\n\n")
 
-        # Create SQL INSERT command
+        # Contains all values that must be inserted into the placeholders in the SQL command
+        values = []
+
+        # Create an SQL INSERT command, but use placeholders for inputs.
+        # Data gets inserted into the query by the execute() function.
+        db_command = f"INSERT INTO \"{table_name}\" ("
+
+        # keys placeholders
+
+        db_command = db_command + ") VALUES "
+
+        # value placeholders for one row
+        #   (%s, %s, ..., %s)
+
+        # value placeholders for all the rows
+        #   (%s, %s, ..., %s), (%s, %s, ..., %s), ..., (%s, %s, ..., %s)
+
+        db_command = db_command + ';'
 
         # Write current dataframe to database table for talker of this dataframe
+        try:
+            db_utils.run_db_command(db_command, tuple(values))
+        except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as ex:
+            # Print error text bold and red
+            sys.exit(f"\n\n\033[1m\033[91mERROR writing to database:\n  {ex}\033[0m\n\nExiting.\n\n")
 
         table_names.append(table_name)
 
