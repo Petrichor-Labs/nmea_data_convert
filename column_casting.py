@@ -8,7 +8,7 @@
 # But that first step is currently disabled, thought to be unnecesary, so conversion goes:
 #   str -> db_dataype in dfs_to_db()
 # DateTime, boolean, and string data values are handled correctly automatically
-# Conversion to db_dataype disregards the sentence_type, so if column db_datatypes are different, column names must be uniquw
+# Conversion to db_dataype disregards the sentence_type, so if column db_datatypes are different, column names must be unique
 
 # Database datatypes reference: https://www.tutorialspoint.com/postgresql/postgresql_data_types.htm
 
@@ -53,15 +53,18 @@ columns_to_cast['GSV', 'Int16'] = ['num_messages', 'msg_num', 'num_sv_in_view',
 
 columns_to_cast['RMC', 'Int32']   = ['datestamp']
 columns_to_cast['RMC', 'float32'] = ['timestamp', 'lat', 'lon', 'spd_over_grnd', 'true_course', 'mag_variation']
-columns_to_cast['RMC', 'text']    = ['status', 'lat_dir', 'lon_dir', 'mode', 'mag_var_dir']
+columns_to_cast['RMC', 'text']    = ['status', 'lat_dir', 'lon_dir', 'mode', 'mag_var_dir', 'nav_status', 'mode_indicator']
+# For RMC, added 'nav_status' and 'mode_indicator'
 
-columns_to_cast['GGA', 'float32'] = ['timestamp', 'lat', 'lon', 'horizontal_dil', 'altitude', 'geo_sep']
+columns_to_cast['GGA', 'float32'] = ['timestamp', 'lat', 'lon', 'horizontal_dil', 'altitude', 'geo_sep', 'age_gps_data', 'ref_station_id']
 columns_to_cast['GGA', 'Int16']   = ['gps_qual', 'num_sats']
-columns_to_cast['GGA', 'text']    = ['lat_dir', 'altitude_units', 'geo_sep_units']
-# TODO: For GGA, unsure about 'age_gps_data' and 'ref_station_id'
+columns_to_cast['GGA', 'text']    = ['lat_dir', 'lon_dir', 'altitude_units', 'geo_sep_units']
+# For GGA, unsure about 'age_gps_data' and 'ref_station_id', can be 'Int32' or 'float32'
+# For GGA, added 'lon_dir'
 
-columns_to_cast['GLL', 'float32'] = ['lat', 'lon']
+columns_to_cast['GLL', 'float32'] = ['timestamp', 'lat', 'lon']
 columns_to_cast['GLL', 'text']    = ['lat_dir', 'lon_dir', 'status', 'faa_mode']
+# For GLL, added 'timestamp'
 
 columns_to_cast['VTG', 'float32'] = ['true_track', 'mag_track', 'spd_over_grnd_kts', 'spd_over_grnd_kmph']
 columns_to_cast['VTG', 'text']    = ['true_track_sym', 'mag_track_sym', 'spd_over_grnd_kts_sym', 'spd_over_grnd_kmph_sym', 'faa_mode']
@@ -71,8 +74,12 @@ columns_to_cast['GSA', 'Int16']   = ['mode_fix_type', 'gp_sv_id01', 'gp_sv_id02'
                                                       'gp_sv_id09', 'gp_sv_id10', 'gp_sv_id11', 'gp_sv_id12',
                                                       'gl_sv_id01', 'gl_sv_id02', 'gl_sv_id03', 'gl_sv_id04',
                                                       'gl_sv_id05', 'gl_sv_id06', 'gl_sv_id07', 'gl_sv_id08',
-                                                      'gl_sv_id09', 'gl_sv_id10', 'gl_sv_id11', 'gl_sv_id12']
+                                                      'gl_sv_id09', 'gl_sv_id10', 'gl_sv_id11', 'gl_sv_id12',
+                                                      'ga_sv_id01', 'ga_sv_id02', 'ga_sv_id03', 'ga_sv_id04',
+                                                      'ga_sv_id05', 'ga_sv_id06', 'ga_sv_id07', 'ga_sv_id08',
+                                                      'ga_sv_id09', 'ga_sv_id10', 'ga_sv_id11', 'ga_sv_id12']
 columns_to_cast['GSA', 'float32'] = ['pdop', 'hdop', 'vdop']
 columns_to_cast['GSA', 'text']    = ['mode']
+# For GSA, added 'ga_sv_id01' .. 'ga_sv_id12'
 
 columns_to_cast['GST', 'float32'] = ['rms', 'std_dev_latitude', 'std_dev_longitude', 'std_dev_altitude']
