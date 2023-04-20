@@ -5,7 +5,7 @@ import psycopg2
 import sqlalchemy  # import create_engine
 import sqlalchemy.exc
 
-from column_casting import columns_to_cast, datatype_dict
+from column_casting import columns_to_cast, datatype_dict, db_datatypes
 from db_creds import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from db_utils import create_table, run_db_command
 
@@ -25,10 +25,9 @@ def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_su
 
         # Create column datatypes collection
         columns: list[dict] = []
-        for keys, values in columns_to_cast.items():
-            for val in values:
-                if val in df.columns:
-                    columns.append({'name': val, 'datatype': str(datatype_dict[keys[1]])})
+        for name, datatype in db_datatypes.items():
+            if name in df.columns:
+                columns.append({'name': name, 'datatype': datatype})
 
         # Create table in database for talker type in current dataframe
         try:
@@ -44,15 +43,38 @@ def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_su
         # Data gets inserted into the query by the execute() function.
         db_command = f"INSERT INTO \"{table_name}\" ("
 
-        # keys placeholders
+        # Keys placeholders
+        for _, col in enumerate(df.columns):
+            # Add placeholder in string for key
+            db_command = db_command + str(col) + ", "
+        # Don't append a comma after the last key
+        if db_command[-2:] == ", ":
+            db_command = db_command[:-2]
 
         db_command = db_command + ") VALUES "
 
-        # value placeholders for one row
+        # Value placeholders for one row
         #   (%s, %s, ..., %s)
+        placeholders_row = '('
+        for _ in range(df.shape[1]):
+            # Add placeholder in string for row value
+            placeholders_row = placeholders_row + "%s, "
+        # Don't append a comma after the last value of a row
+        if placeholders_row[-2:] == ", ":
+            placeholders_row = placeholders_row[:-2]
+        placeholders_row = placeholders_row + ')'
 
-        # value placeholders for all the rows
+        # Value placeholders for all the rows
         #   (%s, %s, ..., %s), (%s, %s, ..., %s), ..., (%s, %s, ..., %s)
+        for idx in range(df.shape[0]):
+            # Add placeholder in string for whole row
+            db_command = db_command + placeholders_row + ", "
+
+            # Add all values of a row to values list
+            values.extend(df.values[idx])
+        # Don't append a comma after the last row
+        if db_command[-2:] == ", ":
+            db_command = db_command[:-2]
 
         db_command = db_command + ';'
 
