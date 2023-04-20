@@ -5,7 +5,7 @@ import psycopg2
 import sqlalchemy  # import create_engine
 import sqlalchemy.exc
 
-from column_casting import columns_to_cast, datatype_dict, db_datatypes
+from column_casting import db_datatypes
 from db_creds import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from db_utils import create_table, run_db_command
 
@@ -77,6 +77,9 @@ def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_su
             db_command = db_command[:-2]
 
         db_command = db_command + ';'
+
+        # Replace all types that are not compatible with psycopg2 with None
+        values = [None if (type(v) == type(pd.NaT) or str(v) == "nan") else v for v in values]  # noqa: E721
 
         # Write current dataframe to database table for talker of this dataframe
         try:
