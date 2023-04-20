@@ -2,15 +2,12 @@ import sys
 
 import pandas as pd
 import psycopg2
-import sqlalchemy  # import create_engine
-import sqlalchemy.exc
 
 from column_casting import db_datatypes
-from db_creds import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from db_utils import create_table, run_db_command
 
-# 'fail', 'replace', or 'append', see https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
-IF_EXISTS_OPT = 'append'
+# # 'fail', 'replace', or 'append', see https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
+# IF_EXISTS_OPT = 'append'
 
 
 # uses psycopg2.connection.cursor.execute()
@@ -84,7 +81,7 @@ def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_su
         # Write current dataframe to database table for talker of this dataframe
         try:
             run_db_command(db_command, tuple(values))
-        except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as ex:
+        except psycopg2.OperationalError as ex:
             # Print error text bold and red
             sys.exit(f"\n\n\033[1m\033[91mERROR writing to database:\n  {ex}\033[0m\n\nExiting.\n\n")
 
@@ -93,31 +90,31 @@ def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_su
     return table_names
 
 
-# uses pandas.DataFrame.to_sql()
-def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
-    db_access_str = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    engine = sqlalchemy.create_engine(db_access_str)
+# # uses pandas.DataFrame.to_sql()
+# def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
+#     db_access_str = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+#     engine = sqlalchemy.create_engine(db_access_str)
+#
+#     table_names = []
+#
+#     # Put data in database
+#     for df_idx, df in enumerate(dfs):
+#
+#         if_exists_opt_loc = IF_EXISTS_OPT
+#
+#         table_name = table_name_base
+#         if table_name_suffixes:
+#             table_name = table_name + '_' + table_name_suffixes[df_idx]
+#
+#         try:
+#             df.to_sql(table_name, engine, method='multi', if_exists=if_exists_opt_loc, index=False, dtype=dtypes)
+#         except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as ex:
+#             # Print error text bold and red
+#             sys.exit(f"\n\n\033[1m\033[91mERROR writing to database:\n  {ex}\033[0m\n\nExiting.\n\n")
+#
+#         table_names.append(table_name)
+#
+#     return table_names
 
-    table_names = []
-
-    # Put data in database
-    for df_idx, df in enumerate(dfs):
-
-        if_exists_opt_loc = IF_EXISTS_OPT
-
-        table_name = table_name_base
-        if table_name_suffixes:
-            table_name = table_name + '_' + table_name_suffixes[df_idx]
-
-        try:
-            df.to_sql(table_name, engine, method='multi', if_exists=if_exists_opt_loc, index=False, dtype=dtypes)
-        except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as ex:
-            # Print error text bold and red
-            sys.exit(f"\n\n\033[1m\033[91mERROR writing to database:\n  {ex}\033[0m\n\nExiting.\n\n")
-
-        table_names.append(table_name)
-
-    return table_names
-
-# TODO: Create separate table for log file IDs and names. Check what the current larged ID is, then append a column to
+# TODO: Create separate table for log file IDs and names. Check what the current largest ID is, then append a column to
 # the dfs with that ID + 1, and a row to the log file table with that ID and the log file name, or something like that

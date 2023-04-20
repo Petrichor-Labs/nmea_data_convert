@@ -4,7 +4,6 @@ import sys
 
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-import sqlalchemy.exc
 
 from db_creds import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
@@ -65,7 +64,7 @@ def setup_db_connection():
     # Start a PostgreSQL database session
     try:
         psql_con = psycopg2.connect(db_access_str)
-    except (sqlalchemy.exc.OperationalError, psycopg2.OperationalError) as ex:
+    except psycopg2.OperationalError as ex:
         # Print error text bold and red
         sys.exit(f"\n\033[1m\033[91mERROR connecting to database:\n  {ex}\033[0m\n\nExiting.\n\n")
 
