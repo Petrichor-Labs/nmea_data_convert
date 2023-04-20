@@ -14,10 +14,10 @@ import pandas as pd
 import pynmea2
 
 from column_casting import columns_to_cast, datatype_dict, db_datatypes
-import db_creds
-import db_data_import
-import db_table_lists
-import db_utils
+from db_creds import DB_NAME
+from db_data_import import send_data_to_db
+from db_table_lists import NMEA_TABLES
+from db_utils import drop_db_tables
 
 # Prevent print statements from buffering till end of execution
 print = functools.partial(print, flush=True)
@@ -602,12 +602,12 @@ def dfs_to_db(sentence_dfs: list[pd.DataFrame], input_file_path, verbose=False):
                     # Get database datatype for column
                     db_datatypes[column] = datatype_dict[py_datatype]
 
-    table_names = db_data_import.send_data_to_db(sentence_dfs, table_name_base, table_name_suffixes, dtypes=db_datatypes)
+    table_names = send_data_to_db(sentence_dfs, table_name_base, table_name_suffixes, dtypes=db_datatypes)
 
     if verbose:
         print(f"data from logfile '{input_file_path}' written to:")
         for table_name in table_names:
-            print(f"  '{table_name}' table in '{db_creds.DB_NAME}' database")
+            print(f"  '{table_name}' table in '{DB_NAME}' database")
 
 
 def get_sentence_type(sentence) -> str:
@@ -687,7 +687,7 @@ def main(passed_args=None):
     if (args.output_method == 'db' or args.output_method == 'both'):
         if args.drop_previous_db_tables:
             print()
-            db_utils.drop_db_tables(db_table_lists.nmea_tables, verbose=True)
+            drop_db_tables(NMEA_TABLES, verbose=True)
 
         print("\nWriting data to database... ", end="")
         dfs_to_db(sentence_dfs, args.filepath, verbose=True)
