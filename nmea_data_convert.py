@@ -170,6 +170,15 @@ def read_file(file):
     for line_idx, line in enumerate(file.readlines()):
         try:
             sentence = pynmea2.parse(line)
+
+            # Some GSA sentences contain a 'data' item after 'pdop', 'hdop', 'vdop'
+            # This item is not present in the 'fields' list of the NMEA object, but is present
+            #   in the 'data' list. This causes indexing problems when expanding GSA sentences for merging.
+            # In fact if 'data' contains more items than 'fields', there will always be indexing problems.
+            # So truncate the last items of 'data' until its length is equal to 'fields'.
+            if len(sentence.data) > len(sentence.fields):
+                sentence.data = sentence.data[:len(sentence.fields)]
+
             sentences.append(sentence)
         except pynmea2.ParseError as ex:
             print(f'Parse error on line {line_idx + 1}: {ex}')
@@ -414,7 +423,6 @@ def get_coordinate(coord: str, coord_dir: str, coord_type: str):
 
 
 def get_position_mode(mode_indicator: str, constellation: str):
-
     if constellation == 'GPS':
         return mode_indicator[0]
 
