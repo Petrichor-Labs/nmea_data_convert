@@ -13,6 +13,30 @@ import db_utils
 IF_EXISTS_OPT = 'append'
 
 
+# uses psycopg2.connection.cursor.execute()
+def _send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
+    table_names = []
+
+    # Put data in database
+    for df_idx, df in enumerate(dfs):
+        table_name = table_name_base
+        if table_name_suffixes:
+            table_name = table_name + '_' + table_name_suffixes[df_idx]
+
+        # Create column datatypes collection
+
+        # Create table in database for talker type in current dataframe
+
+        # Create SQL INSERT command
+
+        # Write current dataframe to database table for talker of this dataframe
+
+        table_names.append(table_name)
+
+    return table_names
+
+
+# uses pandas.DataFrame.to_sql()
 def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_suffixes=None, dtypes=None):
     db_access_str = f'postgresql://{db_creds.DB_USER}:{db_creds.DB_PASSWORD}@{db_creds.DB_HOST}:{db_creds.DB_PORT}/{db_creds.DB_NAME}'
     engine = sqlalchemy.create_engine(db_access_str)
@@ -27,16 +51,6 @@ def send_data_to_db(dfs: list[pd.DataFrame], table_name_base: str, table_name_su
         table_name = table_name_base
         if table_name_suffixes:
             table_name = table_name + '_' + table_name_suffixes[df_idx]
-
-        # create column datatypes collection
-        columns: list[dict] = []
-        for keys, values in columns_to_cast.items():
-            for val in values:
-                if val in df.columns:
-                    columns.append({'name': val, 'datatype': str(datatype_dict[keys[1]])})
-
-        # create table in database for talker type in current dataframe
-        db_utils.create_table(table_name, columns)
 
         try:
             df.to_sql(table_name, engine, method='multi', if_exists=if_exists_opt_loc, index=False, dtype=dtypes)
