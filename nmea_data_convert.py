@@ -500,8 +500,8 @@ def sentences_to_dataframes(sentence_sets: list[list[DateTimeStampedSentence]]):
                 placeholders = [np.NaN] * (len(columns) - len(row_data))
                 row_data = row_data + placeholders
 
-            # For non-merged GSA sentences with less data than merged sentences, fill with NaNs where there is no data
-            if (sentence_type == 'GSA' and not sentence_is_merged):
+            # For GSA sentences with less data than merged sentences, fill with NaNs where there is no data
+            if sentence_type == 'GSA':
                 placeholders = [np.NaN] * (len(columns) - len(row_data))
 
                 # Make sure SV ID data gets put in correct (GP vs GL) columns
