@@ -302,7 +302,17 @@ def merge_groups(sentence_sets: list[list[DateTimeStampedSentence]]):
 
                 if len(merge_group_sentences) > 1:
                     if sentence_type == 'GSV':
-                        merged_sentence = MergedSentence_GSV(merge_group_sentences)
+                        # Sometimes GSV sentences have an extra sentence with some duplicate SVs (see example below).
+                        #   $GPGSV,4,1,13,02,52,170,26,04,09,307,24,09,04,338,12,16,26,295,20,1*62
+                        #   $GPGSV,4,2,13,18,50,161,25,26,63,288,25,27,04,251,20,28,33,201,29,1*6E
+                        #   $GPGSV,4,3,13,29,47,064,22,31,48,226,27,05,18,063,,20,14,037,,1*6C
+                        #   $GPGSV,4,4,13,25,18,120,,1*5B
+                        #   $GPGSV,1,1,03,09,04,338,,26,63,288,,27,04,251,,8*5F
+                        # So only take the first n GSV sentences, where n = num_messages.
+                        # It is also possible to always only take min[4, len(merge_group_sentences)], because only 16 SVs are supported.
+                        num_messages = int(merge_group_sentences[0].sentence.num_messages)
+                        # Also don't truncated merge_group_sentences, because the extra sentence then won't be removed from the sentence_set
+                        merged_sentence = MergedSentence_GSV(merge_group_sentences[:num_messages])
 
                     if sentence_type == 'GSA':
                         merged_sentence = MergedSentence_GSA(merge_group_sentences)
